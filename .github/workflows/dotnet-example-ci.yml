@@ -1,0 +1,26 @@
+name: dotnet-example-ci
+
+on:
+  pull_request:
+    paths:
+      - "examples/dotnet-service/**"
+      - "templates/service-dotnet/**"
+      - ".github/workflows/dotnet-example-ci.yml"
+  push:
+    branches: [ main ]
+    paths:
+      - "examples/dotnet-service/**"
+      - "templates/service-dotnet/**"
+
+jobs:
+  dotnet-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+      - name: Placeholder restore/build
+        run: |
+          echo "Add dotnet restore/build once project files are added."

@@ -1,0 +1,23 @@
+name: platform-ci
+
+on:
+  pull_request:
+    paths:
+      - "platform/**"
+      - "idp/**"
+      - "paved-roads/**"
+      - ".github/workflows/platform-ci.yml"
+  push:
+    branches: [ main ]
+    paths:
+      - "platform/**"
+      - "idp/**"
+      - "paved-roads/**"
+
+jobs:
+  validate-platform-structure:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate structure
+        run: make validate-structure

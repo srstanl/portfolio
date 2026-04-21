@@ -1,0 +1,27 @@
+name: python-example-ci
+
+on:
+  pull_request:
+    paths:
+      - "examples/python-service/**"
+      - "templates/service-python/**"
+      - ".github/workflows/python-example-ci.yml"
+  push:
+    branches: [ main ]
+    paths:
+      - "examples/python-service/**"
+      - "templates/service-python/**"
+
+jobs:
+  python-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Placeholder checks
+        run: |
+          python --version
+          echo "Add ruff/pytest checks once project files are added."
