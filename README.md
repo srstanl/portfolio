@@ -22,5 +22,8 @@ make test
 - Shared checks in `paved-roads/ci-cd`
 - Example services validated independently
 
+## License
+AGPL-3.0. See `LICENSE`.
+
 ## Migration Note
 Previous monorepo preserved as: `../portfolio-legacy-2026-04-21`
