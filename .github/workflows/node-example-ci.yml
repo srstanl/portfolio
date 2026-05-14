@@ -1,0 +1,59 @@
+name: node-example-ci
+
+on:
+  pull_request:
+    paths:
+      - "examples/node-service/**"
+      - "templates/service-node/**"
+      - ".github/workflows/node-example-ci.yml"
+  push:
+    branches: [ main ]
+    paths:
+      - "examples/node-service/**"
+      - "templates/service-node/**"
+
+jobs:
+  node-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: examples/node-service/package-lock.json
+
+      - name: Install dependencies
+        working-directory: examples/node-service
+        run: npm ci
+
+      - name: Lint
+        working-directory: examples/node-service
+        run: npm run lint
+
+      - name: Test
+        working-directory: examples/node-service
+        run: npm test
+
+      - name: Dependency scan (Node)
+        working-directory: examples/node-service
+        run: npm audit --omit=dev --audit-level=high
+
+      - name: Lint Dockerfile
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: examples/node-service/Dockerfile
+
+      - name: Build container image
+        run: docker build -t node-service:ci examples/node-service
+
+      - name: Scan image (Trivy - CRITICAL)
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: node-service:ci
+          format: table
+          severity: CRITICAL
+          exit-code: "1"
+          ignore-unfixed: true

@@ -27,6 +27,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r examples/python-service/requirements-dev.txt
+          pip install pip-audit
 
       - name: Ruff lint
         run: ruff check examples/python-service
@@ -37,3 +38,23 @@ jobs:
       - name: Test
         working-directory: examples/python-service
         run: PYTHONPATH=. pytest
+
+      - name: Dependency scan (Python)
+        run: pip-audit -r examples/python-service/requirements.txt
+
+      - name: Lint Dockerfile
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: examples/python-service/Dockerfile
+
+      - name: Build container image
+        run: docker build -t python-service:ci examples/python-service
+
+      - name: Scan image (Trivy - CRITICAL)
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: python-service:ci
+          format: table
+          severity: CRITICAL
+          exit-code: "1"
+          ignore-unfixed: true

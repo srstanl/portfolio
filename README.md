@@ -1,5 +1,11 @@
 # DevEx Platform Portfolio
 
+[![platform-ci](https://github.com/srstanl/portfolio/actions/workflows/platform-ci.yml/badge.svg?branch=main)](https://github.com/srstanl/portfolio/actions/workflows/platform-ci.yml)
+[![dotnet-example-ci](https://github.com/srstanl/portfolio/actions/workflows/dotnet-example-ci.yml/badge.svg?branch=main)](https://github.com/srstanl/portfolio/actions/workflows/dotnet-example-ci.yml)
+[![python-example-ci](https://github.com/srstanl/portfolio/actions/workflows/python-example-ci.yml/badge.svg?branch=main)](https://github.com/srstanl/portfolio/actions/workflows/python-example-ci.yml)
+[![node-example-ci](https://github.com/srstanl/portfolio/actions/workflows/node-example-ci.yml/badge.svg?branch=main)](https://github.com/srstanl/portfolio/actions/workflows/node-example-ci.yml)
+[![web-angular-ci](https://github.com/srstanl/portfolio/actions/workflows/web-angular-ci.yml/badge.svg?branch=main)](https://github.com/srstanl/portfolio/actions/workflows/web-angular-ci.yml)
+
 Platform-first portfolio repository focused on Internal Developer Platform (IDP) patterns and golden-path delivery.
 
 ## Repository Layout
@@ -16,6 +22,14 @@ make bootstrap
 make lint
 make test
 ```
+
+## Developer Setup
+- Local runbooks and CI-aligned commands: [docs/developer-guide.md](docs/developer-guide.md)
+- Service-specific details:
+  - [examples/dotnet-service/README.md](examples/dotnet-service/README.md)
+  - [examples/python-service/README.md](examples/python-service/README.md)
+  - [examples/node-service/README.md](examples/node-service/README.md)
+  - [examples/web-angular/README.md](examples/web-angular/README.md)
 
 ## CI/CD Model
 - Path-filtered workflows per domain

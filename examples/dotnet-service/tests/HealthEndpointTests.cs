@@ -15,4 +15,13 @@ public sealed class HealthEndpointTests(WebApplicationFactory<Program> factory)
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }
+
+    [Fact]
+    public async Task OpenApiDocumentIsAvailable()
+    {
+        var client = factory.CreateClient();
+        var response = await client.GetAsync("/swagger/v1/swagger.json");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+    }
 }

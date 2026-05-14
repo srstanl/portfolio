@@ -1,0 +1,21 @@
+<main class="page">
+  <header class="hero">
+    <p class="eyebrow">DevEx Platform Portfolio</p>
+    <h1>Service Portal</h1>
+    <p class="subtitle">Reference UI to navigate local service contracts and health endpoints.</p>
+  </header>
+
+  <section class="grid" aria-label="Service cards">
+    @for (service of services; track service.name) {
+      <article class="card">
+        <h2>{{ service.name }}</h2>
+        <p>{{ service.description }}</p>
+        <div class="actions">
+          <a [href]="service.healthUrl" target="_blank" rel="noopener">Health</a>
+          <a [href]="service.docsUrl" target="_blank" rel="noopener">Swagger</a>
+          <a [href]="service.openApiUrl" target="_blank" rel="noopener">OpenAPI</a>
+        </div>
+      </article>
+    }
+  </section>
+</main>

@@ -1,0 +1,57 @@
+name: web-angular-ci
+
+on:
+  pull_request:
+    paths:
+      - "examples/web-angular/**"
+      - ".github/workflows/web-angular-ci.yml"
+  push:
+    branches: [ main ]
+    paths:
+      - "examples/web-angular/**"
+
+jobs:
+  angular-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: examples/web-angular/package-lock.json
+
+      - name: Install dependencies
+        working-directory: examples/web-angular
+        run: npm ci
+
+      - name: Unit tests
+        working-directory: examples/web-angular
+        run: npm run test:headless
+
+      - name: Build
+        working-directory: examples/web-angular
+        run: npm run build
+
+      - name: Dependency scan (Angular)
+        working-directory: examples/web-angular
+        run: npm audit --omit=dev --audit-level=high
+
+      - name: Lint Dockerfile
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: examples/web-angular/Dockerfile
+
+      - name: Build container image
+        run: docker build -t web-angular:ci examples/web-angular
+
+      - name: Scan image (Trivy - CRITICAL)
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: web-angular:ci
+          format: table
+          severity: CRITICAL
+          exit-code: "1"
+          ignore-unfixed: true
