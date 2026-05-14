@@ -17,11 +17,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Placeholder checks
+
+      - name: Install dependencies
         run: |
-          python --version
-          echo "Add ruff/pytest checks once project files are added."
+          python -m pip install --upgrade pip
+          pip install -r examples/python-service/requirements-dev.txt
+
+      - name: Ruff lint
+        run: ruff check examples/python-service
+
+      - name: Ruff format
+        run: ruff format --check examples/python-service
+
+      - name: Test
+        working-directory: examples/python-service
+        run: PYTHONPATH=. pytest
