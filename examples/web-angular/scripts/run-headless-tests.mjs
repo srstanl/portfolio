@@ -3,7 +3,13 @@ import process from 'node:process';
 import puppeteer from 'puppeteer';
 
 const chromePath = puppeteer.executablePath();
-const args = ['test', '--watch=false', '--browsers=ChromeHeadless', ...process.argv.slice(2)];
+const args = [
+  'test',
+  '--watch=false',
+  '--karma-config=karma.conf.cjs',
+  '--browsers=ChromeHeadlessNoSandbox',
+  ...process.argv.slice(2)
+];
 
 const child = spawn('npx', ['ng', ...args], {
   stdio: 'inherit',

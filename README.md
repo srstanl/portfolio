@@ -8,6 +8,11 @@
 
 Platform-first portfolio repository focused on Internal Developer Platform (IDP) patterns and golden-path delivery.
 
+## Portfolio Philosophy
+- Examples are intentionally varied to demonstrate range, not framework preference.
+- Technology choices are context-driven (team constraints, platform fit, and delivery goals).
+- The core signal is safe, repeatable software delivery through explicit quality and security controls.
+
 ## Repository Layout
 - `platform/` Infrastructure and shared platform components
 - `idp/` Developer portal and catalog integration
