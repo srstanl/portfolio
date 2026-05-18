@@ -55,10 +55,12 @@ jobs:
         run: ./scripts/ci/check-repo-hygiene.sh
 
       - name: Lint Dockerfiles
-        uses: hadolint/hadolint-action@54c9adbab1582c2ef04b2016b760714a4bfde3cf
-        with:
-          dockerfile: |
-            examples/dotnet-service/Dockerfile
-            examples/python-service/Dockerfile
-            examples/node-service/Dockerfile
+        run: |
+          for dockerfile in \
+            examples/dotnet-service/Dockerfile \
+            examples/python-service/Dockerfile \
+            examples/node-service/Dockerfile \
             examples/web-angular/Dockerfile
+          do
+            docker run --rm -i hadolint/hadolint < "$dockerfile"
+          done
