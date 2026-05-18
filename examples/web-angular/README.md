@@ -10,7 +10,7 @@ npm start
 
 ## Quality checks
 ```bash
-npm run test:headless
+npm test
 npm run build
 npm audit --omit=dev --audit-level=high
 ```

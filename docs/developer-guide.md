@@ -114,7 +114,7 @@ Install + quality checks:
 ```bash
 cd examples/web-angular
 npm ci
-npm run test:headless
+npm test
 npm run build
 npm audit --omit=dev --audit-level=high
 ```

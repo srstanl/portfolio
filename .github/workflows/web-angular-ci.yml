@@ -38,7 +38,7 @@ jobs:
 
       - name: Unit tests
         working-directory: examples/web-angular
-        run: npm run test:headless
+        run: npm test
 
       - name: Build
         working-directory: examples/web-angular
