@@ -44,4 +44,4 @@ make test
 AGPL-3.0. See `LICENSE`.
 
 ## Migration Note
-Previous monorepo preserved as: `../portfolio-legacy-2026-04-21`
+Previous monorepo was archived on April 21, 2026.
