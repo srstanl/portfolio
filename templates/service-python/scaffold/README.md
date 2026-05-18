@@ -1,4 +1,4 @@
-# python-service
+# {{ service_name }}
 
 FastAPI service scaffolded from `templates/service-python`.
 

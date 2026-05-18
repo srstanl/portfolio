@@ -1,0 +1,11 @@
+apiVersion: backstage.io/v1alpha1
+kind: Location
+metadata:
+  name: devex-portfolio-catalog
+  description: Root location for DevEx portfolio catalog entities.
+spec:
+  targets:
+    - ./entities/organization.yaml
+    - ./entities/system.yaml
+    - ./entities/components.yaml
+    - ./entities/templates.yaml

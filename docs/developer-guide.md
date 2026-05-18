@@ -10,6 +10,14 @@ Local development commands for the example services and CI-aligned checks.
 - Docker
 - Trivy (optional, for local container scanning)
 
+## Service Scaffolding
+Generate a new service from template scaffolds:
+```bash
+make scaffold-service TEMPLATE=service-python NAME=orders-service
+make scaffold-service TEMPLATE=service-node NAME=catalog-service
+make scaffold-service TEMPLATE=service-dotnet NAME=billing-service
+```
+
 ## .NET Example Service
 Directory: `examples/dotnet-service`
 

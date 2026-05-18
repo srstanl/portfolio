@@ -1,4 +1,4 @@
-# node-service
+# {{ service_name }}
 
 Fastify service scaffolded from `templates/service-node`.
 

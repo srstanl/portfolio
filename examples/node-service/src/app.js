@@ -8,9 +8,9 @@ export function buildApp() {
   app.register(fastifySwagger, {
     openapi: {
       info: {
-        title: "example-node-service",
+        title: "node-service",
         version: "1.0.0",
-        description: "Reference Fastify service with OpenAPI/Swagger docs enabled."
+        description: "Template Fastify service with OpenAPI/Swagger docs enabled."
       }
     }
   });
@@ -19,19 +19,7 @@ export function buildApp() {
     routePrefix: "/docs"
   });
 
-  app.get("/health", {
-    schema: {
-      summary: "Service health check",
-      response: {
-        200: {
-          type: "object",
-          properties: {
-            status: { type: "string" }
-          }
-        }
-      }
-    }
-  }, async () => ({ status: "ok" }));
+  app.get("/health", async () => ({ status: "ok" }));
 
   return app;
 }

@@ -16,3 +16,17 @@ test("GET /health returns ok", async () => {
 
   await app.close();
 });
+
+test("GET /docs/json returns OpenAPI document", async () => {
+  const app = buildApp();
+
+  const response = await app.inject({
+    method: "GET",
+    url: "/docs/json"
+  });
+
+  assert.equal(response.statusCode, 200);
+  assert.equal(response.json().openapi, "3.0.3");
+
+  await app.close();
+});

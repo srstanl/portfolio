@@ -1,0 +1,15 @@
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+WORKDIR /src
+
+COPY ./src/{{ service_name }}.csproj ./src/
+RUN dotnet restore ./src/{{ service_name }}.csproj
+
+COPY . .
+RUN dotnet publish ./src/{{ service_name }}.csproj -c Release -o /app/publish /p:UseAppHost=false
+
+FROM mcr.microsoft.com/dotnet/aspnet:10.0
+WORKDIR /app
+COPY --from=build /app/publish .
+
+EXPOSE 8080
+ENTRYPOINT ["dotnet", "{{ service_name }}.dll"]

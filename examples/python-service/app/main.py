@@ -1,8 +1,8 @@
 from fastapi import FastAPI
 
 app = FastAPI(
-    title="example-python-service",
-    description="Reference FastAPI service with OpenAPI/Swagger docs enabled.",
+    title="python-service",
+    description="Template FastAPI service with OpenAPI/Swagger docs enabled.",
     version="1.0.0",
 )
 

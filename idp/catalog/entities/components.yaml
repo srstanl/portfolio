@@ -1,0 +1,75 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: dotnet-service
+  description: ASP.NET Core reference service with health and OpenAPI endpoints.
+  annotations:
+    github.com/project-slug: srstanl/portfolio
+    backstage.io/source-location: url:https://github.com/srstanl/portfolio/tree/main/examples/dotnet-service
+    backstage.io/techdocs-ref: dir:.
+  links:
+    - url: https://github.com/srstanl/portfolio/tree/main/examples/dotnet-service
+      title: Source
+      icon: github
+spec:
+  type: service
+  lifecycle: experimental
+  owner: group:default/platform-engineering
+  system: devex-portfolio
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: python-service
+  description: FastAPI reference service with health and OpenAPI endpoints.
+  annotations:
+    github.com/project-slug: srstanl/portfolio
+    backstage.io/source-location: url:https://github.com/srstanl/portfolio/tree/main/examples/python-service
+    backstage.io/techdocs-ref: dir:.
+  links:
+    - url: https://github.com/srstanl/portfolio/tree/main/examples/python-service
+      title: Source
+      icon: github
+spec:
+  type: service
+  lifecycle: experimental
+  owner: group:default/platform-engineering
+  system: devex-portfolio
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: node-service
+  description: Fastify reference service with health and OpenAPI endpoints.
+  annotations:
+    github.com/project-slug: srstanl/portfolio
+    backstage.io/source-location: url:https://github.com/srstanl/portfolio/tree/main/examples/node-service
+    backstage.io/techdocs-ref: dir:.
+  links:
+    - url: https://github.com/srstanl/portfolio/tree/main/examples/node-service
+      title: Source
+      icon: github
+spec:
+  type: service
+  lifecycle: experimental
+  owner: group:default/platform-engineering
+  system: devex-portfolio
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: web-angular
+  description: Angular reference UI for navigating service health and API docs.
+  annotations:
+    github.com/project-slug: srstanl/portfolio
+    backstage.io/source-location: url:https://github.com/srstanl/portfolio/tree/main/examples/web-angular
+    backstage.io/techdocs-ref: dir:.
+  links:
+    - url: https://github.com/srstanl/portfolio/tree/main/examples/web-angular
+      title: Source
+      icon: github
+spec:
+  type: website
+  lifecycle: experimental
+  owner: group:default/platform-engineering
+  system: devex-portfolio

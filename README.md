@@ -23,6 +23,9 @@ make lint
 make test
 ```
 
+## Service Scaffolding
+- Generate new services from templates: `make scaffold-service TEMPLATE=service-python NAME=my-service`
+
 ## Developer Setup
 - Local runbooks and CI-aligned commands: [docs/developer-guide.md](docs/developer-guide.md)
 - Service-specific details:
