@@ -1,0 +1,41 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: service-dotnet-template
+  description: Golden-path scaffold for .NET 10 API services.
+  annotations:
+    github.com/project-slug: srstanl/portfolio
+    backstage.io/source-location: url:https://github.com/srstanl/portfolio/tree/main/templates/service-dotnet
+spec:
+  type: template
+  lifecycle: experimental
+  owner: group:default/platform-engineering
+  system: devex-portfolio
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: service-python-template
+  description: Golden-path scaffold for FastAPI services.
+  annotations:
+    github.com/project-slug: srstanl/portfolio
+    backstage.io/source-location: url:https://github.com/srstanl/portfolio/tree/main/templates/service-python
+spec:
+  type: template
+  lifecycle: experimental
+  owner: group:default/platform-engineering
+  system: devex-portfolio
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: service-node-template
+  description: Golden-path scaffold for Fastify services.
+  annotations:
+    github.com/project-slug: srstanl/portfolio
+    backstage.io/source-location: url:https://github.com/srstanl/portfolio/tree/main/templates/service-node
+spec:
+  type: template
+  lifecycle: experimental
+  owner: group:default/platform-engineering
+  system: devex-portfolio

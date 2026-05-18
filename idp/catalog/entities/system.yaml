@@ -1,0 +1,7 @@
+apiVersion: backstage.io/v1alpha1
+kind: System
+metadata:
+  name: devex-portfolio
+  description: Platform-first portfolio of reference services and templates.
+spec:
+  owner: group:default/platform-engineering

@@ -1,0 +1,22 @@
+apiVersion: backstage.io/v1alpha1
+kind: Group
+metadata:
+  name: platform-engineering
+  description: Platform engineering ownership group for this portfolio.
+spec:
+  type: team
+  profile:
+    displayName: Platform Engineering
+  children: []
+---
+apiVersion: backstage.io/v1alpha1
+kind: User
+metadata:
+  name: srstanl
+  description: Repository owner and primary maintainer.
+spec:
+  profile:
+    displayName: Sian Stanley
+    email: sian.stanley@icloud.com
+  memberOf:
+    - platform-engineering

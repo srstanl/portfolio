@@ -1,0 +1,16 @@
+# Default owner for all repository content
+* @srstanl
+
+# Platform boundaries
+/platform/ @srstanl
+/idp/ @srstanl
+/templates/ @srstanl
+/paved-roads/ @srstanl
+/examples/ @srstanl
+/docs/ @srstanl
+
+# CI/CD and governance
+/.github/ @srstanl
+/Makefile @srstanl
+/PROJECT_CONTEXT.md @srstanl
+/README.md @srstanl

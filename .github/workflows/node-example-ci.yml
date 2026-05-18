@@ -1,0 +1,68 @@
+name: node-example-ci
+
+on:
+  workflow_dispatch:
+
+  pull_request:
+    paths:
+      - "examples/node-service/**"
+      - "templates/service-node/**"
+      - ".github/workflows/node-example-ci.yml"
+  push:
+    branches: [ main ]
+    paths:
+      - "examples/node-service/**"
+      - "templates/service-node/**"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  node-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+
+      - name: Setup Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: examples/node-service/package-lock.json
+
+      - name: Install dependencies
+        working-directory: examples/node-service
+        run: npm ci
+
+      - name: Lint
+        working-directory: examples/node-service
+        run: npm run lint
+
+      - name: Test
+        working-directory: examples/node-service
+        run: npm test
+
+      - name: Dependency scan (Node)
+        working-directory: examples/node-service
+        run: npm audit --omit=dev --audit-level=high
+
+      - name: Lint Dockerfile
+        uses: hadolint/hadolint-action@54c9adbab1582c2ef04b2016b760714a4bfde3cf
+        with:
+          dockerfile: examples/node-service/Dockerfile
+
+      - name: Build container image
+        run: docker build -t node-service:ci examples/node-service
+
+      - name: Scan image (Trivy - CRITICAL)
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25
+        with:
+          image-ref: node-service:ci
+          format: table
+          severity: CRITICAL
+          exit-code: "1"
+          ignore-unfixed: true
