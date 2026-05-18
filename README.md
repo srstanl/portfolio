@@ -38,6 +38,7 @@ make test
 - Path-filtered workflows per domain
 - Shared checks in `paved-roads/ci-cd`
 - Example services validated independently
+- CI workflow map: [docs/ci-workflow-map.md](docs/ci-workflow-map.md)
 
 ## License
 AGPL-3.0. See `LICENSE`.

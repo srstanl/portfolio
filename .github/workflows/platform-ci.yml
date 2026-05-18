@@ -1,6 +1,8 @@
 name: platform-ci
 
 on:
+  workflow_dispatch:
+
   pull_request:
     paths:
       - "platform/**"
@@ -22,19 +24,26 @@ on:
       - "scripts/**"
       - ".github/workflows/**"
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   validate-platform-structure:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
       - name: Validate structure
         run: make validate-structure
 
       - name: Lint GitHub Actions workflows
-        uses: rhysd/actionlint@v1
+        uses: rhysd/actionlint@914e7df21a07ef503a81201c76d2b11c789d3fca
 
       - name: Secret scan
-        uses: gitleaks/gitleaks-action@v2
+        uses: gitleaks/gitleaks-action@ff98106e4c7b2bc287b24eaf42907196329070c7
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -42,9 +51,10 @@ jobs:
         run: ./scripts/ci/check-repo-hygiene.sh
 
       - name: Lint Dockerfiles
-        uses: hadolint/hadolint-action@v3.1.0
+        uses: hadolint/hadolint-action@54c9adbab1582c2ef04b2016b760714a4bfde3cf
         with:
           dockerfile: |
             examples/dotnet-service/Dockerfile
             examples/python-service/Dockerfile
             examples/node-service/Dockerfile
+            examples/web-angular/Dockerfile
