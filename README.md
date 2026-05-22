@@ -33,6 +33,7 @@ make test
 
 ## Developer Setup
 - Local runbooks and CI-aligned commands: [docs/developer-guide.md](docs/developer-guide.md)
+- Contribution workflow and project-board conventions: [CONTRIBUTING.md](CONTRIBUTING.md)
 - Service-specific details:
   - [examples/dotnet-service/README.md](examples/dotnet-service/README.md)
   - [examples/python-service/README.md](examples/python-service/README.md)
@@ -44,6 +45,9 @@ make test
 - Shared checks in `paved-roads/ci-cd`
 - Example services validated independently
 - CI workflow map: [docs/ci-workflow-map.md](docs/ci-workflow-map.md)
+
+## Delivery Tracking
+- GitHub Project v1 setup runbook: [docs/github-project-v1.md](docs/github-project-v1.md)
 
 ## License
 AGPL-3.0. See `LICENSE`.
