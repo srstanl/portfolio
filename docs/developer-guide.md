@@ -116,6 +116,7 @@ cd examples/web-angular
 npm ci
 npm test
 npm run build
+npm run test:e2e
 npm audit --omit=dev --audit-level=high
 ```
 

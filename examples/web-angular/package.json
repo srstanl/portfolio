@@ -6,6 +6,7 @@
     "ng": "ng",
     "start": "ng serve",
     "test": "jest --runInBand",
+    "test:e2e": "playwright test",
     "watch": "ng build --watch --configuration development"
   },
   "prettier": {
@@ -36,6 +37,7 @@
     "@angular/build": "^20.3.26",
     "@angular/cli": "^20.3.26",
     "@angular/compiler-cli": "^20.3.0",
+    "@playwright/test": "^1.55.0",
     "@types/jest": "^30.0.0",
     "jest": "^30.0.0",
     "jest-environment-jsdom": "^30.0.0",
