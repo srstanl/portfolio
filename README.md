@@ -48,6 +48,7 @@ make test
 
 ## Delivery Tracking
 - GitHub Project v1 setup runbook: [docs/github-project-v1.md](docs/github-project-v1.md)
+- Python CD runbook: [docs/python-cd.md](docs/python-cd.md)
 
 ## License
 AGPL-3.0. See `LICENSE`.
