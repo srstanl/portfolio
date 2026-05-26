@@ -1,3 +1,5 @@
+/// <reference types="node" />
+
 /*
  * Copyright 2023 The Backstage Authors
  *
@@ -27,23 +29,15 @@ export default defineConfig({
     timeout: 30_000,
   },
 
-  // Run your local dev server before starting the tests
-  webServer: process.env.CI
-    ? []
-    : [
-        {
-          command: 'yarn start app',
-          url: 'http://localhost:3000',
-          reuseExistingServer: true,
-          timeout: 120_000,
-        },
-        {
-          command: 'yarn start backend',
-          port: 7007,
-          reuseExistingServer: true,
-          timeout: 60_000,
-        },
-      ],
+  // Start Backstage unless an external URL is provided.
+  webServer: process.env.PLAYWRIGHT_URL
+    ? undefined
+    : {
+        command: 'yarn dev',
+        url: 'http://localhost:3000',
+        reuseExistingServer: !process.env.CI,
+        timeout: 180_000,
+      },
 
   forbidOnly: !!process.env.CI,
 
@@ -53,9 +47,7 @@ export default defineConfig({
 
   use: {
     actionTimeout: 0,
-    baseURL:
-      process.env.PLAYWRIGHT_URL ??
-      (process.env.CI ? 'http://localhost:7007' : 'http://localhost:3000'),
+    baseURL: process.env.PLAYWRIGHT_URL ?? 'http://localhost:3000',
     screenshot: 'only-on-failure',
     trace: 'on-first-retry',
   },

@@ -58,6 +58,15 @@ GitHub UI path:
     - Dockerfile lint
     - container build + Trivy scan
 
+- `idp-ci`
+  - Triggered on PR/push when changing:
+    - `idp/**`
+  - Checks:
+    - Backstage dependency install, lint, type-check, tests
+    - dependency vulnerability scan
+    - Dockerfile lint
+    - container build + Trivy scan
+
 ## Visual Flow
 ```mermaid
 flowchart TD
@@ -67,10 +76,12 @@ flowchart TD
   B -->|examples/python-service or templates/service-python| PY[python-example-ci]
   B -->|examples/node-service or templates/service-node| N[node-example-ci]
   B -->|examples/web-angular| W[web-angular-ci]
+  B -->|idp/**| I[idp-ci]
 
   P --> P1[actionlint + gitleaks + hygiene + hadolint]
   D --> D1[lint/test + dep scan + docker + trivy]
   PY --> PY1[lint/test + dep scan + docker + trivy]
   N --> N1[lint/test + dep scan + docker + trivy]
   W --> W1[test/build + dep scan + docker + trivy]
+  I --> I1[lint/test/tsc + dep scan + docker + trivy]
 ```
