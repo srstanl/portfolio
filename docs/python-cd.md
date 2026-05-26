@@ -14,6 +14,12 @@ Workflow: `.github/workflows/python-cd.yml`
   - `preview` -> deploys to namespace `apps-dev`
   - `promote` -> deploys to namespace `apps-prod`
 
+## Exact Values Reference
+- Workflow event: `workflow_dispatch`
+- `target_environment` options: `preview`, `promote`
+- Environment names: `python-preview`, `python-promote`
+- Required environment secret: `KUBECONFIG_B64`
+
 ## Required GitHub Setup
 Create two repository environments:
 - `python-preview`
