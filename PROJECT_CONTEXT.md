@@ -34,6 +34,7 @@ Platform engineering portfolio focused on Developer Experience (DevEx) and Inter
   - Dockerfile lint
   - container build
   - Trivy image scanning (critical threshold)
+- Temporary policy (May 26, 2026): `idp-ci` dependency audit is non-blocking due to transitive Backstage advisories (`tar` via `node-gyp`); revisit and re-enable blocking after deployment lane validation is complete.
 
 ## Backstage Status
 - Local Backstage app scaffold exists at `idp/backstage-portal/`.
