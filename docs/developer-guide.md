@@ -2,6 +2,8 @@
 
 ## Purpose
 Local development commands for the example services and CI-aligned checks.
+Contribution process, issue/PR workflow, and project-board rules are documented in `CONTRIBUTING.md`.
+Local Kubernetes bootstrap for infra/CD work is documented in `docs/local-infra.md`.
 
 ## Prerequisites
 - .NET SDK 10

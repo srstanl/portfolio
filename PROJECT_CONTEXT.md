@@ -34,31 +34,49 @@ Platform engineering portfolio focused on Developer Experience (DevEx) and Inter
   - Dockerfile lint
   - container build
   - Trivy image scanning (critical threshold)
+- Temporary policy (May 26, 2026): `idp-ci` dependency audit is non-blocking due to transitive Backstage advisories (`tar` via `node-gyp`); revisit and re-enable blocking after deployment lane validation is complete.
 
 ## Backstage Status
-- Local Backstage app scaffold exists at `backstage-portal/`.
+- Local Backstage app scaffold exists at `idp/backstage-portal/`.
 - Local catalog loading is configured from `idp/catalog/catalog-info.yaml`.
 - Remote GitHub URL catalog location is also configured (requires token/private access).
-- A root-level Backstage Dockerfile was added at `backstage-portal/Dockerfile`.
+- A Backstage Dockerfile exists at `idp/backstage-portal/Dockerfile`.
+- Repo boundary decision (May 26, 2026): `idp/backstage-portal/` remains in this repository as a platform-owned React UI module. It is not treated as a standalone product boundary.
 
 ## In-Progress / Not Yet Merged
 - Angular E2E smoke setup with Playwright is in progress:
   - `examples/web-angular/e2e/smoke.spec.ts`
   - `examples/web-angular/playwright.config.ts`
   - `web-angular-ci` updated to run Playwright browser install + smoke test
-- `backstage-portal/` is currently untracked in git (if intended, add selectively).
+- `idp/backstage-portal/` is currently untracked in git (if intended, add selectively).
+- GitHub Project v1 execution-board runbook added at:
+  - `docs/github-project-v1.md`
+- GitHub Project execution board is now live and seeded:
+  - project: `Portfolio Execution Board`
+  - issue-backed tasks created (`#3`-`#11`) for PR-linkable execution tracking
+  - `First CD implementation` is the current active epic (`#12`)
 
 ## Immediate Next Milestones
-1. Clean and commit current in-flight changes:
+1. Execute CD tasks under epic `#12`:
+   - `#7` define provider-agnostic deployment contract
+   - `#8` implement preview + manual promote lane for python-service
+2. Clean and commit any remaining in-flight changes:
    - `web-angular` Playwright updates
-   - optional inclusion of `backstage-portal/` artifacts
-2. Decide whether `backstage-portal/` belongs in this repo long-term or should be moved to a separate repo.
-3. Add deploy workflows (preview and environment promotion) once CI baseline is stable on `main`.
-4. Optionally convert IDP template components into full Backstage `Template` entities with parameters/steps.
+   - optional inclusion of `idp/backstage-portal/` artifacts
+3. Optionally convert IDP template components into full Backstage `Template` entities with parameters/steps.
 
-## Session Convention
+## Session Conventions
+- Keyword: `save state`
+- Meaning: current task reached a stopping point; prepare hand-off and shift focus.
+- `save state` checklist:
+  1. Update `PROJECT_CONTEXT.md` (state, decisions, next action).
+  2. Update impacted README/docs for accuracy.
+  3. Run quick validation for touched areas when feasible.
+  4. Summarize git status and propose commit message.
+  5. Pause for commit/push decision.
+
 - Keyword: `downtime`
-- Meaning: switch into maintenance/hand-off mode before stepping away.
+- Meaning: session is ending.
 - `downtime` checklist:
   1. Update `PROJECT_CONTEXT.md` (state, decisions, next actions).
   2. Update impacted README/docs for accuracy.

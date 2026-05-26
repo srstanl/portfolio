@@ -1,0 +1,74 @@
+name: idp-ci
+
+on:
+  workflow_dispatch:
+
+  pull_request:
+    paths:
+      - "idp/**"
+      - ".github/workflows/idp-ci.yml"
+  push:
+    branches: [ main ]
+    paths:
+      - "idp/**"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  idp-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+
+      - name: Setup Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: "22"
+          cache: "yarn"
+          cache-dependency-path: idp/backstage-portal/yarn.lock
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Install dependencies
+        working-directory: idp/backstage-portal
+        run: yarn install --immutable
+
+      - name: Lint
+        working-directory: idp/backstage-portal
+        run: yarn lint:all
+
+      - name: Type check
+        working-directory: idp/backstage-portal
+        run: yarn tsc
+
+      - name: Unit tests
+        working-directory: idp/backstage-portal
+        run: yarn test
+
+      - name: Dependency scan (Backstage, non-blocking temporarily)
+        continue-on-error: true
+        working-directory: idp/backstage-portal
+        run: yarn npm audit --recursive --severity high
+
+      - name: Lint Dockerfile
+        uses: hadolint/hadolint-action@54c9adbab1582c2ef04b2016b760714a4bfde3cf
+        with:
+          dockerfile: idp/backstage-portal/Dockerfile
+
+      - name: Build container image
+        run: docker build -t backstage-portal:ci idp/backstage-portal
+
+      - name: Scan image (Trivy - CRITICAL)
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25
+        with:
+          image-ref: backstage-portal:ci
+          format: table
+          severity: CRITICAL
+          exit-code: "1"
+          ignore-unfixed: true

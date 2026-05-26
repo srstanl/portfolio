@@ -1,6 +1,7 @@
 # IDP
 
 Holds developer portal configuration, software catalog descriptors, and docs publishing integration.
+The Backstage UI runtime (`idp/backstage-portal/`) is part of this platform repo and is maintained as a platform module, not a standalone repo/application boundary.
 
 ## Catalog Artifacts
 - Root catalog location: `idp/catalog/catalog-info.yaml`
