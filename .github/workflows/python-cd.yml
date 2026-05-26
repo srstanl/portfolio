@@ -57,7 +57,8 @@ jobs:
             ${{ env.IMAGE_NAME }}:latest
 
   deploy:
-    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' }}
+    runs-on: ${{ inputs.target_environment == 'preview' && fromJSON('["self-hosted","macOS","k3d-local"]') || fromJSON('["ubuntu-latest"]') }}
     needs: build-and-push
     environment: ${{ inputs.target_environment == 'promote' && 'python-promote' || 'python-preview' }}
     steps:
@@ -76,7 +77,8 @@ jobs:
         with:
           version: v1.31.0
 
-      - name: Configure kubeconfig
+      - name: Configure kubeconfig (promote/remote only)
+        if: ${{ inputs.target_environment == 'promote' }}
         run: |
           mkdir -p "$HOME/.kube"
           echo "${{ secrets.KUBECONFIG_B64 }}" | base64 --decode > "$HOME/.kube/config"
