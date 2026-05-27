@@ -28,6 +28,8 @@ What this does:
 - ensures namespaces exist:
   - `platform-system`
   - `apps-dev`
+  - `apps-staging`
+  - `apps-prod`
   - `observability`
   - `idp`
 

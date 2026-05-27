@@ -51,7 +51,7 @@ jobs:
         working-directory: idp/backstage-portal
         run: yarn test
 
-      - name: Dependency scan (Backstage, non-blocking temporarily)
+      - name: Dependency scan (Backstage) [Advisory - temporary]
         continue-on-error: true
         working-directory: idp/backstage-portal
         run: yarn npm audit --recursive --severity high

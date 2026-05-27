@@ -6,102 +6,30 @@ on:
       target_environment:
         description: "Deployment target"
         required: true
-        default: "preview"
+        default: "dev"
         type: choice
         options:
-          - preview
-          - promote
+          - dev
+          - staging
+          - prod
 
 permissions:
   contents: read
-  packages: write
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}-${{ inputs.target_environment }}
-  cancel-in-progress: false
-
-env:
-  IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/python-service
 
 jobs:
-  build-and-push:
-    runs-on: ubuntu-latest
-    outputs:
-      image_tag: ${{ steps.meta.outputs.image_tag }}
-      image_ref: ${{ steps.meta.outputs.image_ref }}
-    steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
-
-      - name: Set image metadata
-        id: meta
-        run: |
-          IMAGE_TAG=${GITHUB_SHA}
-          IMAGE_REF=${IMAGE_NAME}:${IMAGE_TAG}
-          echo "image_tag=${IMAGE_TAG}" >> "$GITHUB_OUTPUT"
-          echo "image_ref=${IMAGE_REF}" >> "$GITHUB_OUTPUT"
-
-      - name: Log in to GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build and push image
-        uses: docker/build-push-action@v6
-        with:
-          context: examples/python-service
-          push: true
-          tags: |
-            ${{ steps.meta.outputs.image_ref }}
-            ${{ env.IMAGE_NAME }}:latest
-
-  deploy:
+  python-service-cd:
     if: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' }}
-    runs-on: ${{ inputs.target_environment == 'preview' && fromJSON('["self-hosted","macOS","k3d-local"]') || fromJSON('["ubuntu-latest"]') }}
-    needs: build-and-push
-    environment: ${{ inputs.target_environment == 'promote' && 'python-promote' || 'python-preview' }}
-    steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
-
-      - name: Set namespace
-        run: |
-          if [ "${{ inputs.target_environment }}" = "promote" ]; then
-            echo "NAMESPACE=apps-prod" >> "$GITHUB_ENV"
-          else
-            echo "NAMESPACE=apps-dev" >> "$GITHUB_ENV"
-          fi
-
-      - name: Install kubectl
-        uses: azure/setup-kubectl@v4
-        with:
-          version: v1.31.0
-
-      - name: Configure kubeconfig (promote/remote only)
-        if: ${{ inputs.target_environment == 'promote' }}
-        run: |
-          mkdir -p "$HOME/.kube"
-          echo "${{ secrets.KUBECONFIG_B64 }}" | base64 --decode > "$HOME/.kube/config"
-          chmod 600 "$HOME/.kube/config"
-
-      - name: Ensure namespace
-        run: |
-          kubectl create namespace "$NAMESPACE" --dry-run=client -o yaml | kubectl apply -f -
-
-      - name: Apply manifests
-        run: |
-          kubectl -n "$NAMESPACE" apply -k platform/cd/python-service/base
-
-      - name: Update image
-        run: |
-          kubectl -n "$NAMESPACE" set image deployment/python-service \
-            python-service=${{ needs.build-and-push.outputs.image_ref }}
-
-      - name: Verify rollout
-        run: |
-          kubectl -n "$NAMESPACE" rollout status deployment/python-service --timeout=120s
-
-      - name: Verify health endpoint (in-cluster)
-        run: |
-          kubectl -n "$NAMESPACE" run curl-check --rm -i --restart=Never --image=curlimages/curl:8.8.0 \
-            -- curl -fsS http://python-service:8080/health
+    uses: ./.github/workflows/reusable-service-cd.yml
+    with:
+      service_name: python-service
+      image_name: ghcr.io/${{ github.repository_owner }}/python-service
+      build_context: examples/python-service
+      kustomize_path: platform/cd/python-service/base
+      deployment_name: python-service
+      health_endpoint: /health
+      integration_endpoint: /docs
+      target_environment: ${{ inputs.target_environment }}
+      namespace: ${{ inputs.target_environment == 'prod' && 'apps-prod' || (inputs.target_environment == 'staging' && 'apps-staging' || 'apps-dev') }}
+      environment_name: ${{ inputs.target_environment == 'prod' && 'python-prod' || (inputs.target_environment == 'staging' && 'python-staging' || 'python-dev') }}
+    secrets:
+      KUBECONFIG_B64: ${{ secrets.KUBECONFIG_B64 }}

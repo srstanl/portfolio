@@ -44,7 +44,7 @@ jobs:
       - name: Test
         run: dotnet test examples/dotnet-service/dotnet-service.sln --configuration Release --no-build
 
-      - name: Dependency scan (.NET)
+      - name: Dependency scan (.NET) [Blocking]
         run: dotnet list examples/dotnet-service/dotnet-service.sln package --vulnerable --include-transitive
 
       - name: Lint Dockerfile

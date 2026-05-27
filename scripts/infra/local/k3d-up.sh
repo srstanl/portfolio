@@ -24,7 +24,7 @@ else
 fi
 
 echo "ensuring base namespaces exist"
-for ns in platform-system apps-dev observability idp; do
+for ns in platform-system apps-dev apps-staging apps-prod observability idp; do
   kubectl create namespace "${ns}" --dry-run=client -o yaml | kubectl apply -f -
 done
 
@@ -33,5 +33,4 @@ echo "cluster ready:"
 kubectl get nodes -o wide
 echo
 echo "namespaces:"
-kubectl get ns platform-system apps-dev observability idp
-
+kubectl get ns platform-system apps-dev apps-staging apps-prod observability idp
