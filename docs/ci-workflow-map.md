@@ -69,6 +69,10 @@ GitHub UI path:
 
 - `python-cd`
   - Triggered manually (`workflow_dispatch`)
+  - Implementation:
+    - wrapper workflow calling reusable skeleton:
+      - `.github/workflows/python-cd.yml`
+      - `.github/workflows/reusable-service-cd.yml`
   - Stages:
     - build/push `python-service` image to GHCR
     - deploy to Kubernetes (`apps-dev` for `dev`, `apps-staging` for `staging`, `apps-prod` for `prod`)

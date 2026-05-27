@@ -7,6 +7,7 @@ First deployment lane for `examples/python-service`:
 - verify rollout and health
 
 Workflow: `.github/workflows/python-cd.yml`
+Reusable CD skeleton: `.github/workflows/reusable-service-cd.yml`
 
 ## Trigger
 - Manual only (`workflow_dispatch`)
@@ -52,3 +53,12 @@ Workflow enforces:
 - deployment rollout status
 - in-cluster `/health` check via ephemeral curl pod
 - dev-only integration gate via `/docs` check
+
+## Reuse Pattern
+`python-cd` is now a thin wrapper that calls the reusable workflow and passes service-specific inputs:
+- image name + build context
+- kustomize path + deployment name
+- environment/namespace mapping
+- health and integration endpoints
+
+Use this pattern to add `node-cd` and `dotnet-cd` without duplicating core CD logic.
