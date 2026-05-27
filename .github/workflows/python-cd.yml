@@ -6,11 +6,12 @@ on:
       target_environment:
         description: "Deployment target"
         required: true
-        default: "preview"
+        default: "dev"
         type: choice
         options:
-          - preview
-          - promote
+          - dev
+          - staging
+          - prod
 
 permissions:
   contents: read
@@ -60,16 +61,18 @@ jobs:
 
   deploy:
     if: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' }}
-    runs-on: ${{ inputs.target_environment == 'preview' && fromJSON('["self-hosted","macOS","k3d-local"]') || fromJSON('["ubuntu-latest"]') }}
+    runs-on: ${{ inputs.target_environment == 'dev' && fromJSON('["self-hosted","macOS","k3d-local"]') || fromJSON('["ubuntu-latest"]') }}
     needs: build-and-push
-    environment: ${{ inputs.target_environment == 'promote' && 'python-promote' || 'python-preview' }}
+    environment: ${{ inputs.target_environment == 'prod' && 'python-prod' || (inputs.target_environment == 'staging' && 'python-staging' || 'python-dev') }}
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
 
       - name: Set namespace
         run: |
-          if [ "${{ inputs.target_environment }}" = "promote" ]; then
+          if [ "${{ inputs.target_environment }}" = "prod" ]; then
             echo "NAMESPACE=apps-prod" >> "$GITHUB_ENV"
+          elif [ "${{ inputs.target_environment }}" = "staging" ]; then
+            echo "NAMESPACE=apps-staging" >> "$GITHUB_ENV"
           else
             echo "NAMESPACE=apps-dev" >> "$GITHUB_ENV"
           fi
@@ -79,8 +82,8 @@ jobs:
         with:
           version: v1.31.0
 
-      - name: Configure kubeconfig (promote/remote only)
-        if: ${{ inputs.target_environment == 'promote' }}
+      - name: Configure kubeconfig (staging/prod only)
+        if: ${{ inputs.target_environment != 'dev' }}
         run: |
           mkdir -p "$HOME/.kube"
           echo "${{ secrets.KUBECONFIG_B64 }}" | base64 --decode > "$HOME/.kube/config"
@@ -107,3 +110,9 @@ jobs:
         run: |
           kubectl -n "$NAMESPACE" run curl-check --rm -i --restart=Never --image=curlimages/curl:8.8.0 \
             -- curl -fsS http://python-service:8080/health
+
+      - name: Integration test gate (dev only)
+        if: ${{ inputs.target_environment == 'dev' }}
+        run: |
+          kubectl -n "$NAMESPACE" run curl-docs --rm -i --restart=Never --image=curlimages/curl:8.8.0 \
+            -- curl -fsS http://python-service:8080/docs

@@ -71,8 +71,8 @@ GitHub UI path:
   - Triggered manually (`workflow_dispatch`)
   - Stages:
     - build/push `python-service` image to GHCR
-    - deploy to Kubernetes (`apps-dev` for `preview`, `apps-prod` for `promote`)
-    - rollout + health verification
+    - deploy to Kubernetes (`apps-dev` for `dev`, `apps-staging` for `staging`, `apps-prod` for `prod`)
+    - rollout + health verification (+ dev integration gate)
 
 ## Visual Flow
 ```mermaid
