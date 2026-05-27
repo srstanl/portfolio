@@ -48,7 +48,7 @@ jobs:
         working-directory: examples/python-service
         run: PYTHONPATH=. pytest
 
-      - name: Dependency scan (Python)
+      - name: Dependency scan (Python) [Blocking]
         run: pip-audit -r examples/python-service/requirements.txt
 
       - name: Lint Dockerfile

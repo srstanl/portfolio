@@ -46,7 +46,7 @@ jobs:
         working-directory: examples/node-service
         run: npm test
 
-      - name: Dependency scan (Node)
+      - name: Dependency scan (Node) [Blocking]
         working-directory: examples/node-service
         run: npm audit --omit=dev --audit-level=high
 

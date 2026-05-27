@@ -52,7 +52,7 @@ jobs:
         working-directory: examples/web-angular
         run: npm run test:e2e
 
-      - name: Dependency scan (Angular)
+      - name: Dependency scan (Angular) [Blocking]
         working-directory: examples/web-angular
         run: npm audit --omit=dev --audit-level=high
 
