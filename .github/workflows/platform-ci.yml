@@ -13,10 +13,9 @@ on:
       - "scripts/**"
       - ".github/workflows/**"
       - ".github/workflows/platform-ci.yml"
-    paths-ignore:
-      - "docs/**"
-      - "README.md"
-      - "PROJECT_CONTEXT.md"
+      - "!docs/**"
+      - "!README.md"
+      - "!PROJECT_CONTEXT.md"
   push:
     branches: [ main ]
     paths:
@@ -27,10 +26,9 @@ on:
       - "templates/**"
       - "scripts/**"
       - ".github/workflows/**"
-    paths-ignore:
-      - "docs/**"
-      - "README.md"
-      - "PROJECT_CONTEXT.md"
+      - "!docs/**"
+      - "!README.md"
+      - "!PROJECT_CONTEXT.md"
 
 permissions:
   contents: read
