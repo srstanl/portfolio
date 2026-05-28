@@ -60,10 +60,12 @@ Platform engineering portfolio focused on Developer Experience (DevEx) and Inter
 1. Execute CD tasks under epic `#12`:
    - `#7` define provider-agnostic deployment contract
    - `#8` implement preview + manual promote lane for python-service
-2. Clean and commit any remaining in-flight changes:
+2. Finalize local vs cloud infra requirements baseline:
+   - `docs/local-vs-cloud-requirements.md` (drives paved-roads standards)
+3. Clean and commit any remaining in-flight changes:
    - `web-angular` Playwright updates
    - optional inclusion of `idp/backstage-portal/` artifacts
-3. Optionally convert IDP template components into full Backstage `Template` entities with parameters/steps.
+4. Optionally convert IDP template components into full Backstage `Template` entities with parameters/steps.
 
 ## Session Conventions
 - Keyword: `save state`

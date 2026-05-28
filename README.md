@@ -45,6 +45,7 @@ make test
 - Shared checks in `paved-roads/ci-cd`
 - Example services validated independently
 - CI workflow map: [docs/ci-workflow-map.md](docs/ci-workflow-map.md)
+- Local vs cloud requirements baseline: [docs/local-vs-cloud-requirements.md](docs/local-vs-cloud-requirements.md)
 
 ## Delivery Tracking
 - GitHub Project v1 setup runbook: [docs/github-project-v1.md](docs/github-project-v1.md)
