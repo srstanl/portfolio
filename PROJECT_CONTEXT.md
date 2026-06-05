@@ -55,17 +55,32 @@ Platform engineering portfolio focused on Developer Experience (DevEx) and Inter
   - project: `Portfolio Execution Board`
   - issue-backed tasks created (`#3`-`#11`) for PR-linkable execution tracking
   - `First CD implementation` is the current active epic (`#12`)
+- CD contract and wrapper expansion are implemented locally and not yet merged:
+  - `#7` provider-agnostic deployment contract drafted in `docs/deployment-contract.md`
+  - `#8` preview/promote lane implemented for `python-service`
+  - matching wrapper pattern extended to `node-service` and `dotnet-service`
 
 ## Immediate Next Milestones
 1. Execute CD tasks under epic `#12`:
-   - `#7` define provider-agnostic deployment contract
-   - `#8` implement preview + manual promote lane for python-service
-2. Clean and commit any remaining in-flight changes:
+   - `#7` and `#8` are implemented locally; next step is PR/board closure
+   - decide whether to keep `node-cd` and `dotnet-cd` in the same PR or split follow-on work
+2. Finalize local vs cloud infra requirements baseline:
+   - `docs/local-vs-cloud-requirements.md` (drives paved-roads standards)
+3. Clean and commit current in-flight changes:
+   - CD contract, reusable workflow refactor, and service CD wrappers
    - `web-angular` Playwright updates
    - optional inclusion of `idp/backstage-portal/` artifacts
-3. Optionally convert IDP template components into full Backstage `Template` entities with parameters/steps.
+4. Optionally convert IDP template components into full Backstage `Template` entities with parameters/steps.
 
 ## Session Conventions
+- Keyword: `start session`
+- Meaning: begin a new work session by recapping the previous session and checking the board for the next task.
+- `start session` checklist:
+  1. Review `PROJECT_CONTEXT.md` for current status, decisions, and immediate next milestones.
+  2. Check the active board/epic and confirm the next `Ready` or planned task.
+  3. Summarize repo state (clean vs in-flight changes).
+  4. Propose the next concrete work item before making edits.
+
 - Keyword: `save state`
 - Meaning: current task reached a stopping point; prepare hand-off and shift focus.
 - `save state` checklist:

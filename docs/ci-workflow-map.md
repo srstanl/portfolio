@@ -49,6 +49,19 @@ GitHub UI path:
     - Dockerfile lint
     - container build + Trivy scan
 
+- `node-cd`
+  - Triggered manually (`workflow_dispatch`)
+  - Implementation:
+    - wrapper workflow calling reusable skeleton:
+      - `.github/workflows/node-cd.yml`
+      - `.github/workflows/reusable-service-cd.yml`
+    - contract:
+      - `docs/deployment-contract.md`
+  - Stages:
+    - `preview`: build/push `node-service` image to GHCR, then deploy to Kubernetes (`dev` or `staging`)
+    - `promote`: reuse an existing image ref and deploy to Kubernetes (`staging` or `prod`)
+    - rollout + health verification (+ dev integration gate for `dev`)
+
 - `web-angular-ci`
   - Triggered on PR/push when changing:
     - `examples/web-angular/**`
@@ -73,10 +86,25 @@ GitHub UI path:
     - wrapper workflow calling reusable skeleton:
       - `.github/workflows/python-cd.yml`
       - `.github/workflows/reusable-service-cd.yml`
+    - contract:
+      - `docs/deployment-contract.md`
   - Stages:
-    - build/push `python-service` image to GHCR
-    - deploy to Kubernetes (`apps-dev` for `dev`, `apps-staging` for `staging`, `apps-prod` for `prod`)
-    - rollout + health verification (+ dev integration gate)
+    - `preview`: build/push `python-service` image to GHCR, then deploy to Kubernetes (`dev` or `staging`)
+    - `promote`: reuse an existing image ref and deploy to Kubernetes (`staging` or `prod`)
+    - rollout + health verification (+ dev integration gate for `dev`)
+
+- `dotnet-cd`
+  - Triggered manually (`workflow_dispatch`)
+  - Implementation:
+    - wrapper workflow calling reusable skeleton:
+      - `.github/workflows/dotnet-cd.yml`
+      - `.github/workflows/reusable-service-cd.yml`
+    - contract:
+      - `docs/deployment-contract.md`
+  - Stages:
+    - `preview`: build/push `dotnet-service` image to GHCR, then deploy to Kubernetes (`dev` or `staging`)
+    - `promote`: reuse an existing image ref and deploy to Kubernetes (`staging` or `prod`)
+    - rollout + health verification (+ dev integration gate for `dev`)
 
 ## Visual Flow
 ```mermaid
@@ -88,7 +116,9 @@ flowchart TD
   B -->|examples/node-service or templates/service-node| N[node-example-ci]
   B -->|examples/web-angular| W[web-angular-ci]
   B -->|idp/**| I[idp-ci]
-  B -->|manual cd trigger| CD[python-cd]
+  B -->|manual python cd trigger| CDPY[python-cd]
+  B -->|manual node cd trigger| CDN[node-cd]
+  B -->|manual dotnet cd trigger| CDD[dotnet-cd]
 
   P --> P1[actionlint + gitleaks + hygiene + hadolint]
   D --> D1[lint/test + dep scan + docker + trivy]
@@ -96,5 +126,7 @@ flowchart TD
   N --> N1[lint/test + dep scan + docker + trivy]
   W --> W1[test/build + dep scan + docker + trivy]
   I --> I1[lint/test/tsc + dep scan + docker + trivy]
-  CD --> CD1[build/push + deploy + rollout/health]
+  CDPY --> CDPY1[preview or promote + rollout/health]
+  CDN --> CDN1[preview or promote + rollout/health]
+  CDD --> CDD1[preview or promote + rollout/health]
 ```

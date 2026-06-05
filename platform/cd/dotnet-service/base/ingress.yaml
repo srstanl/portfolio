@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: dotnet-service
+  labels:
+    app: dotnet-service
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: dotnet-service.localtest.me
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: dotnet-service
+                port:
+                  number: 8080

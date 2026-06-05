@@ -1,4 +1,4 @@
-name: python-cd
+name: node-cd
 
 on:
   workflow_dispatch:
@@ -29,22 +29,22 @@ permissions:
   contents: read
 
 jobs:
-  python-service-cd:
+  node-service-cd:
     if: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' }}
     uses: ./.github/workflows/reusable-service-cd.yml
     with:
-      service_name: python-service
-      image_name: ghcr.io/${{ github.repository_owner }}/python-service
-      build_context: examples/python-service
-      deployment_spec_path: platform/cd/python-service/base
+      service_name: node-service
+      image_name: ghcr.io/${{ github.repository_owner }}/node-service
+      build_context: examples/node-service
+      deployment_spec_path: platform/cd/node-service/base
       health_endpoint: /health
-      integration_endpoint: /docs
+      integration_endpoint: /docs/json
       artifact_image_ref: ${{ inputs.artifact_image_ref }}
       target_environment: ${{ inputs.target_environment }}
-      environment_name: ${{ inputs.target_environment == 'prod' && 'python-prod' || (inputs.target_environment == 'staging' && 'python-staging' || 'python-dev') }}
+      environment_name: ${{ inputs.target_environment == 'prod' && 'node-prod' || (inputs.target_environment == 'staging' && 'node-staging' || 'node-dev') }}
       deployment_mode: ${{ inputs.deployment_mode }}
       provider: kubernetes
       provider_config_json: >-
-        {"deployment_name":"python-service","namespace":"${{ inputs.target_environment == 'prod' && 'apps-prod' || (inputs.target_environment == 'staging' && 'apps-staging' || 'apps-dev') }}","runs_on":${{ inputs.target_environment == 'dev' && '["self-hosted","macOS","k3d-local"]' || '["ubuntu-latest"]' }}}
+        {"deployment_name":"node-service","namespace":"${{ inputs.target_environment == 'prod' && 'apps-prod' || (inputs.target_environment == 'staging' && 'apps-staging' || 'apps-dev') }}","runs_on":${{ inputs.target_environment == 'dev' && '["self-hosted","macOS","k3d-local"]' || '["ubuntu-latest"]' }}}
     secrets:
       KUBECONFIG_B64: ${{ secrets.KUBECONFIG_B64 }}

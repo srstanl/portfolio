@@ -12,10 +12,7 @@ on:
       build_context:
         required: true
         type: string
-      kustomize_path:
-        required: true
-        type: string
-      deployment_name:
+      deployment_spec_path:
         required: true
         type: string
       health_endpoint:
@@ -26,23 +23,28 @@ on:
         required: false
         type: string
         default: ""
-      target_environment:
-        required: true
+      artifact_image_ref:
+        required: false
         type: string
-      namespace:
+        default: ""
+      target_environment:
         required: true
         type: string
       environment_name:
         required: true
         type: string
-      dev_runner_labels_json:
+      deployment_mode:
         required: false
         type: string
-        default: '["self-hosted","macOS","k3d-local"]'
-      remote_runner_labels_json:
+        default: deploy
+      provider:
         required: false
         type: string
-        default: '["ubuntu-latest"]'
+        default: kubernetes
+      provider_config_json:
+        required: false
+        type: string
+        default: "{}"
     secrets:
       KUBECONFIG_B64:
         required: false
@@ -61,18 +63,26 @@ jobs:
       packages: write
     runs-on: ubuntu-latest
     outputs:
-      image_ref: ${{ steps.meta.outputs.image_ref }}
+      image_ref: ${{ steps.final-image.outputs.image_ref }}
     steps:
+      - name: Use provided artifact reference
+        if: ${{ inputs.artifact_image_ref != '' }}
+        id: provided-artifact
+        run: echo "image_ref=${{ inputs.artifact_image_ref }}" >> "$GITHUB_OUTPUT"
+
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        if: ${{ inputs.artifact_image_ref == '' }}
 
       - name: Set image metadata
         id: meta
+        if: ${{ inputs.artifact_image_ref == '' }}
         run: |
           IMAGE_TAG=${GITHUB_SHA}
           IMAGE_REF=${{ inputs.image_name }}:${IMAGE_TAG}
           echo "image_ref=${IMAGE_REF}" >> "$GITHUB_OUTPUT"
 
       - name: Log in to GHCR
+        if: ${{ inputs.artifact_image_ref == '' }}
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
@@ -80,6 +90,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push image
+        if: ${{ inputs.artifact_image_ref == '' }}
         uses: docker/build-push-action@v6
         with:
           context: ${{ inputs.build_context }}
@@ -88,46 +99,124 @@ jobs:
             ${{ steps.meta.outputs.image_ref }}
             ${{ inputs.image_name }}:latest
 
+      - name: Finalize image reference
+        id: final-image
+        run: |
+          IMAGE_REF="${{ steps.provided-artifact.outputs.image_ref || steps.meta.outputs.image_ref }}"
+          echo "image_ref=${IMAGE_REF}" >> "$GITHUB_OUTPUT"
+
   deploy:
     needs: build-and-push
-    runs-on: ${{ inputs.target_environment == 'dev' && fromJSON(inputs.dev_runner_labels_json) || fromJSON(inputs.remote_runner_labels_json) }}
+    runs-on: ${{ fromJSON(inputs.provider_config_json).runs_on || fromJSON('["ubuntu-latest"]') }}
     environment: ${{ inputs.environment_name }}
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
 
+      - name: Validate deployment contract inputs
+        env:
+          ARTIFACT_IMAGE_REF: ${{ inputs.artifact_image_ref }}
+          DEPLOYMENT_MODE: ${{ inputs.deployment_mode }}
+          TARGET_ENVIRONMENT: ${{ inputs.target_environment }}
+          PROVIDER: ${{ inputs.provider }}
+          PROVIDER_CONFIG_JSON: ${{ inputs.provider_config_json }}
+        run: |
+          if [ "$DEPLOYMENT_MODE" != "deploy" ] && [ "$DEPLOYMENT_MODE" != "preview" ] && [ "$DEPLOYMENT_MODE" != "promote" ]; then
+            echo "Unsupported deployment_mode: $DEPLOYMENT_MODE" >&2
+            exit 1
+          fi
+
+          if [ "$PROVIDER" != "kubernetes" ]; then
+            echo "Unsupported provider: $PROVIDER" >&2
+            exit 1
+          fi
+
+          if [ "$DEPLOYMENT_MODE" = "preview" ] && [ "$TARGET_ENVIRONMENT" = "prod" ]; then
+            echo "Preview mode cannot target prod" >&2
+            exit 1
+          fi
+
+          if [ "$DEPLOYMENT_MODE" = "promote" ] && [ -z "$ARTIFACT_IMAGE_REF" ]; then
+            echo "Promote mode requires artifact_image_ref" >&2
+            exit 1
+          fi
+
+          if [ "$DEPLOYMENT_MODE" = "promote" ] && [ "$TARGET_ENVIRONMENT" = "dev" ]; then
+            echo "Promote mode cannot target dev" >&2
+            exit 1
+          fi
+
+          python3 - <<'PY'
+          import json
+          import os
+          import sys
+
+          config = json.loads(os.environ["PROVIDER_CONFIG_JSON"])
+          required_keys = ["namespace", "deployment_name", "runs_on"]
+          missing = [key for key in required_keys if key not in config]
+          if missing:
+              print(
+                  f"provider_config_json missing required keys: {', '.join(missing)}",
+                  file=sys.stderr,
+              )
+              sys.exit(1)
+          PY
+
       - name: Install kubectl
+        if: ${{ inputs.provider == 'kubernetes' }}
         uses: azure/setup-kubectl@v4
         with:
           version: v1.31.0
 
       - name: Configure kubeconfig (non-dev)
-        if: ${{ inputs.target_environment != 'dev' }}
+        if: ${{ inputs.provider == 'kubernetes' && inputs.target_environment != 'dev' }}
         run: |
           mkdir -p "$HOME/.kube"
           echo "${{ secrets.KUBECONFIG_B64 }}" | base64 --decode > "$HOME/.kube/config"
           chmod 600 "$HOME/.kube/config"
 
       - name: Ensure namespace
-        run: kubectl create namespace "${{ inputs.namespace }}" --dry-run=client -o yaml | kubectl apply -f -
+        if: ${{ inputs.provider == 'kubernetes' }}
+        run: |
+          kubectl create namespace "${{ fromJSON(inputs.provider_config_json).namespace }}" --dry-run=client -o yaml | kubectl apply -f -
 
       - name: Apply manifests
-        run: kubectl -n "${{ inputs.namespace }}" apply -k "${{ inputs.kustomize_path }}"
+        if: ${{ inputs.provider == 'kubernetes' }}
+        run: |
+          kubectl -n "${{ fromJSON(inputs.provider_config_json).namespace }}" apply -k "${{ inputs.deployment_spec_path }}"
 
       - name: Update image
+        if: ${{ inputs.provider == 'kubernetes' }}
         run: |
-          kubectl -n "${{ inputs.namespace }}" set image deployment/${{ inputs.deployment_name }} \
-            ${{ inputs.deployment_name }}=${{ needs.build-and-push.outputs.image_ref }}
+          kubectl -n "${{ fromJSON(inputs.provider_config_json).namespace }}" set image deployment/${{ fromJSON(inputs.provider_config_json).deployment_name }} \
+            ${{ fromJSON(inputs.provider_config_json).deployment_name }}=${{ needs.build-and-push.outputs.image_ref }}
 
       - name: Verify rollout [Blocking]
-        run: kubectl -n "${{ inputs.namespace }}" rollout status deployment/${{ inputs.deployment_name }} --timeout=120s
+        if: ${{ inputs.provider == 'kubernetes' }}
+        run: |
+          kubectl -n "${{ fromJSON(inputs.provider_config_json).namespace }}" rollout status deployment/${{ fromJSON(inputs.provider_config_json).deployment_name }} --timeout=120s
 
       - name: Verify health endpoint [Blocking]
+        if: ${{ inputs.provider == 'kubernetes' }}
         run: |
-          kubectl -n "${{ inputs.namespace }}" run curl-health --rm -i --restart=Never --image=curlimages/curl:8.8.0 \
-            -- curl -fsS http://${{ inputs.deployment_name }}:8080${{ inputs.health_endpoint }}
+          kubectl -n "${{ fromJSON(inputs.provider_config_json).namespace }}" run curl-health --rm -i --restart=Never --image=curlimages/curl:8.8.0 \
+            -- curl -fsS http://${{ fromJSON(inputs.provider_config_json).deployment_name }}:8080${{ inputs.health_endpoint }}
 
       - name: Integration test gate (dev only) [Blocking]
-        if: ${{ inputs.target_environment == 'dev' && inputs.integration_endpoint != '' }}
+        if: ${{ inputs.provider == 'kubernetes' && inputs.target_environment == 'dev' && inputs.integration_endpoint != '' }}
         run: |
-          kubectl -n "${{ inputs.namespace }}" run curl-integration --rm -i --restart=Never --image=curlimages/curl:8.8.0 \
-            -- curl -fsS http://${{ inputs.deployment_name }}:8080${{ inputs.integration_endpoint }}
+          kubectl -n "${{ fromJSON(inputs.provider_config_json).namespace }}" run curl-integration --rm -i --restart=Never --image=curlimages/curl:8.8.0 \
+            -- curl -fsS http://${{ fromJSON(inputs.provider_config_json).deployment_name }}:8080${{ inputs.integration_endpoint }}
+
+      - name: Write deployment summary
+        env:
+          IMAGE_REF: ${{ needs.build-and-push.outputs.image_ref }}
+        run: |
+          {
+            echo "## Deployment Summary"
+            echo "- Service: ${{ inputs.service_name }}"
+            echo "- Mode: ${{ inputs.deployment_mode }}"
+            echo "- Environment: ${{ inputs.target_environment }}"
+            echo "- GitHub environment: ${{ inputs.environment_name }}"
+            echo "- Provider: ${{ inputs.provider }}"
+            echo "- Artifact: ${IMAGE_REF}"
+          } >> "$GITHUB_STEP_SUMMARY"
