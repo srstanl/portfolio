@@ -49,7 +49,10 @@ make test
 
 ## Delivery Tracking
 - GitHub Project v1 setup runbook: [docs/github-project-v1.md](docs/github-project-v1.md)
+- Provider-agnostic deployment contract: [docs/deployment-contract.md](docs/deployment-contract.md)
 - Python CD runbook: [docs/python-cd.md](docs/python-cd.md)
+- Node CD runbook: [docs/node-cd.md](docs/node-cd.md)
+- .NET CD runbook: [docs/dotnet-cd.md](docs/dotnet-cd.md)
 
 ## License
 AGPL-3.0. See `LICENSE`.

@@ -1,15 +1,15 @@
-# Python CD Lane
+# Node CD Lane
 
 ## Purpose
-First deployment lane for `examples/python-service`:
+Deployment lane for `examples/node-service`:
 - build and push image to GHCR
 - deploy to Kubernetes
 - verify rollout and health
 
-This workflow is the first concrete implementation of the provider-agnostic deployment contract:
+This workflow is a concrete implementation of the provider-agnostic deployment contract:
 - contract: `docs/deployment-contract.md`
 
-Workflow: `.github/workflows/python-cd.yml`
+Workflow: `.github/workflows/node-cd.yml`
 Reusable CD skeleton: `.github/workflows/reusable-service-cd.yml`
 
 ## Trigger
@@ -30,30 +30,22 @@ Reusable CD skeleton: `.github/workflows/reusable-service-cd.yml`
 - `target_environment` options: `dev`, `staging`, `prod`
 - `deployment_mode` options: `preview`, `promote`
 - `provider`: `kubernetes`
-- Environment names: `python-dev`, `python-staging`, `python-prod`
+- Environment names: `node-dev`, `node-staging`, `node-prod`
 - Required environment secret: `KUBECONFIG_B64`
 
 ## Required GitHub Setup
 Create three repository environments:
-- `python-dev`
-- `python-staging`
-- `python-prod`
+- `node-dev`
+- `node-staging`
+- `node-prod`
 
-Add secret to `python-staging` and `python-prod`:
+Add secret to `node-staging` and `node-prod`:
 - `KUBECONFIG_B64`
 
-`python-dev` uses local kubeconfig on the self-hosted runner (`k3d-local`) and does not require this secret.
-
-Generate secret value from local kubeconfig:
-
-```bash
-base64 -i ~/.kube/config | tr -d '\n'
-```
-
-Use that output as the environment secret value.
+`node-dev` uses local kubeconfig on the self-hosted runner (`k3d-local`) and does not require this secret.
 
 ## Deployment Manifests
-Path: `platform/cd/python-service/base`
+Path: `platform/cd/node-service/base`
 - `deployment.yaml`
 - `service.yaml`
 - `ingress.yaml`
@@ -63,26 +55,16 @@ Path: `platform/cd/python-service/base`
 Workflow enforces:
 - deployment rollout status
 - in-cluster `/health` check via ephemeral curl pod
-- dev-only integration gate via `/docs` check
+- dev-only integration gate via `/docs/json` check
 
 ## Preview and Promote Flow
-1. Run `python-cd` with:
+1. Run `node-cd` with:
    - `deployment_mode=preview`
    - `target_environment=dev` or `staging`
 2. Capture the deployed artifact reference from the workflow summary.
-3. Run `python-cd` again with:
+3. Run `node-cd` again with:
    - `deployment_mode=promote`
    - `target_environment=staging` or `prod`
    - `artifact_image_ref=<captured image ref>`
 
 Promotion reuses the existing artifact and does not rebuild from source.
-
-## Reuse Pattern
-`python-cd` is now a thin wrapper that calls the reusable workflow and passes contract-level inputs:
-- image name + build context
-- deployment spec path
-- logical environment mapping
-- provider selector + provider configuration payload
-- health and integration endpoints
-
-Use this pattern to add `node-cd` and `dotnet-cd` without duplicating core CD logic.

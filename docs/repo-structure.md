@@ -20,3 +20,4 @@
 ## CI expectations
 - Changes in one boundary should not trigger unrelated pipelines.
 - Shared checks can run globally for formatting/security policies.
+- Reusable CD logic lives in `.github/workflows/reusable-service-cd.yml`, with per-service wrappers for `python`, `node`, and `.NET`.
