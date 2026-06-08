@@ -3,6 +3,11 @@
 ## Overview
 Platform engineering portfolio focused on Developer Experience (DevEx) and Internal Developer Platform patterns.
 
+## Default Conventions
+- Developer-facing and platform-oriented tools should default to a Python backend and React frontend.
+- Other application experiences should default to a .NET backend and Angular frontend.
+- Exceptions are allowed when a project has a documented reason to diverge.
+
 ## Current Status
 - Legacy monorepo was archived on April 21, 2026.
 - Platform-first repository structure is active and in use.
