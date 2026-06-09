@@ -9,7 +9,7 @@ Platform engineering portfolio focused on Developer Experience (DevEx) and Inter
 - Exceptions are allowed when a project has a documented reason to diverge.
 
 ## Portfolio Boundary Direction
-- The platform is currently the dominant asset in this repository, but it is not intended to be the permanent identity of the entire portfolio.
+- `devex_platform` is the named platform asset in this repository; the platform should not remain the implicit identity of the entire portfolio forever.
 - Future onboarding consumers should appear as separate portfolio assets once they are mature enough to belong here.
 - See `docs/portfolio-asset-boundary-plan.md` for the staged structure plan; no repo-wide code move is implied yet.
 

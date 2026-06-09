@@ -25,7 +25,7 @@ This works while everything in the repo is platform-owned. It becomes less intui
 ## Target Interpretation
 
 The repository should eventually read as:
-- `platform` is one portfolio asset
+- `devex_platform` is one portfolio asset
 - onboarded consumers or showcase projects are separate portfolio assets
 - repo-level docs explain how those assets relate to each other
 
@@ -61,6 +61,7 @@ This is the target conceptual layout, not an immediate mass-move:
 
 ```text
 portfolio/
+├── devex_platform/            # named platform asset boundary
 ├── platform/                  # platform-owned runtime, infra, standards
 ├── idp/                       # developer portal and catalog integration
 ├── templates/                 # service scaffolds and golden paths
@@ -72,6 +73,11 @@ portfolio/
 ```
 
 ## Meaning of Each Top-Level Boundary
+
+- `devex_platform/`
+  - names the platform as a distinct portfolio asset
+  - provides the first explicit boundary between the platform identity and the repository identity
+  - can remain mostly documentary until a larger structural move is warranted
 
 - `platform/`
   - infrastructure and platform runtime concerns
@@ -118,7 +124,8 @@ That means the first use of this boundary is conceptual, not operational:
 Do this now.
 
 - state explicitly that the portfolio repo can contain multiple asset types
-- describe the platform as one major asset rather than the whole repository identity
+- describe `devex_platform` as the named platform asset rather than the whole repository identity
+- add a `devex_platform/` boundary marker with local documentation
 - describe future onboarded consumers as separate portfolio artifacts
 - do not move code yet
 

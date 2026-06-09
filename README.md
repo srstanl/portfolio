@@ -15,6 +15,7 @@ Platform-first portfolio repository focused on Internal Developer Platform (IDP)
 
 ## Repository Layout
 - Portfolio asset boundary plan: [docs/portfolio-asset-boundary-plan.md](docs/portfolio-asset-boundary-plan.md)
+- `devex_platform/` Named boundary for the DevEx platform as a portfolio asset
 - `platform/` Infrastructure and shared platform components
 - `idp/` Developer portal and catalog integration
 - `templates/` Service templates (scaffolding and standards)
@@ -58,6 +59,11 @@ make test
 
 ## License
 AGPL-3.0. See `LICENSE`.
+
+## Asset Model
+- `devex_platform` is the named platform asset inside this repository.
+- The current top-level platform directories remain in place for now; `devex_platform/` marks the logical asset boundary before any larger code move.
+- Future consumer-grade portfolio projects should appear as separate assets, not as subdirectories inside the platform tree by default.
 
 ## Migration Note
 Previous monorepo was archived on April 21, 2026.

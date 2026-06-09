@@ -7,6 +7,7 @@
 4. Treat the platform as one portfolio asset, not the entire repository identity.
 
 ## Top-level directories
+- `devex_platform/` Named boundary for the platform as a portfolio asset.
 - `platform/` IaC, runtime platform definitions, and shared services.
 - `idp/` Developer portal setup, catalog descriptors, docs ingestion.
 - `templates/` Golden path service templates.
@@ -24,7 +25,8 @@
 - Reusable CD logic lives in `.github/workflows/reusable-service-cd.yml`, with per-service wrappers for `python`, `node`, and `.NET`.
 
 ## Portfolio-level boundary
-- This repository can eventually contain both platform-owned assets and separate portfolio projects.
+- This repository can contain both platform-owned assets and separate portfolio projects.
+- `devex_platform/` names the platform asset explicitly, even while platform-owned code still spans multiple top-level directories.
 - Platform-owned assets stay under platform-oriented boundaries such as `platform/`, `idp/`, `templates/`, and `paved-roads/`.
 - Future portfolio-grade consumers should appear as separate assets rather than being inserted into the platform tree by default.
 - See `docs/portfolio-asset-boundary-plan.md` for the staged evolution model.
