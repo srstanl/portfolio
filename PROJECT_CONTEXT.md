@@ -8,6 +8,11 @@ Platform engineering portfolio focused on Developer Experience (DevEx) and Inter
 - Other application experiences should default to a .NET backend and Angular frontend.
 - Exceptions are allowed when a project has a documented reason to diverge.
 
+## Portfolio Boundary Direction
+- The platform is currently the dominant asset in this repository, but it is not intended to be the permanent identity of the entire portfolio.
+- Future onboarding consumers should appear as separate portfolio assets once they are mature enough to belong here.
+- See `docs/portfolio-asset-boundary-plan.md` for the staged structure plan; no repo-wide code move is implied yet.
+
 ## Current Status
 - Legacy monorepo was archived on April 21, 2026.
 - Platform-first repository structure is active and in use.

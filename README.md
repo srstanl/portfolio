@@ -6,7 +6,7 @@
 [![node-example-ci](https://github.com/srstanl/portfolio/actions/workflows/node-example-ci.yml/badge.svg?branch=main)](https://github.com/srstanl/portfolio/actions/workflows/node-example-ci.yml)
 [![web-angular-ci](https://github.com/srstanl/portfolio/actions/workflows/web-angular-ci.yml/badge.svg?branch=main)](https://github.com/srstanl/portfolio/actions/workflows/web-angular-ci.yml)
 
-Platform-first portfolio repository focused on Internal Developer Platform (IDP) patterns and golden-path delivery.
+Platform-first portfolio repository focused on Internal Developer Platform (IDP) patterns, golden-path delivery, and the broader portfolio narrative around platform consumers.
 
 ## Portfolio Philosophy
 - Examples are intentionally varied to demonstrate range, not framework preference.
@@ -14,6 +14,7 @@ Platform-first portfolio repository focused on Internal Developer Platform (IDP)
 - The core signal is safe, repeatable software delivery through explicit quality and security controls.
 
 ## Repository Layout
+- Portfolio asset boundary plan: [docs/portfolio-asset-boundary-plan.md](docs/portfolio-asset-boundary-plan.md)
 - `platform/` Infrastructure and shared platform components
 - `idp/` Developer portal and catalog integration
 - `templates/` Service templates (scaffolding and standards)

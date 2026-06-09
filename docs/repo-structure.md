@@ -4,6 +4,7 @@
 1. Keep platform assets separate from product examples.
 2. Keep templates versioned and testable.
 3. Keep CI path-scoped to reduce blast radius.
+4. Treat the platform as one portfolio asset, not the entire repository identity.
 
 ## Top-level directories
 - `platform/` IaC, runtime platform definitions, and shared services.
@@ -21,3 +22,9 @@
 - Changes in one boundary should not trigger unrelated pipelines.
 - Shared checks can run globally for formatting/security policies.
 - Reusable CD logic lives in `.github/workflows/reusable-service-cd.yml`, with per-service wrappers for `python`, `node`, and `.NET`.
+
+## Portfolio-level boundary
+- This repository can eventually contain both platform-owned assets and separate portfolio projects.
+- Platform-owned assets stay under platform-oriented boundaries such as `platform/`, `idp/`, `templates/`, and `paved-roads/`.
+- Future portfolio-grade consumers should appear as separate assets rather than being inserted into the platform tree by default.
+- See `docs/portfolio-asset-boundary-plan.md` for the staged evolution model.
