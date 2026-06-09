@@ -6,7 +6,7 @@
 [![node-example-ci](https://github.com/srstanl/portfolio/actions/workflows/node-example-ci.yml/badge.svg?branch=main)](https://github.com/srstanl/portfolio/actions/workflows/node-example-ci.yml)
 [![web-angular-ci](https://github.com/srstanl/portfolio/actions/workflows/web-angular-ci.yml/badge.svg?branch=main)](https://github.com/srstanl/portfolio/actions/workflows/web-angular-ci.yml)
 
-Platform-first portfolio repository focused on Internal Developer Platform (IDP) patterns and golden-path delivery.
+Platform-first portfolio repository focused on Internal Developer Platform (IDP) patterns, golden-path delivery, and the broader portfolio narrative around platform consumers.
 
 ## Portfolio Philosophy
 - Examples are intentionally varied to demonstrate range, not framework preference.
@@ -14,6 +14,8 @@ Platform-first portfolio repository focused on Internal Developer Platform (IDP)
 - The core signal is safe, repeatable software delivery through explicit quality and security controls.
 
 ## Repository Layout
+- Portfolio asset boundary plan: [docs/portfolio-asset-boundary-plan.md](docs/portfolio-asset-boundary-plan.md)
+- `devex_platform/` Named boundary for the DevEx platform as a portfolio asset
 - `platform/` Infrastructure and shared platform components
 - `idp/` Developer portal and catalog integration
 - `templates/` Service templates (scaffolding and standards)
@@ -46,6 +48,7 @@ make test
 - Example services validated independently
 - CI workflow map: [docs/ci-workflow-map.md](docs/ci-workflow-map.md)
 - Local vs cloud requirements baseline: [docs/local-vs-cloud-requirements.md](docs/local-vs-cloud-requirements.md)
+- Problem recommender adoption plan: [docs/problem-recommender-platform-adoption.md](docs/problem-recommender-platform-adoption.md)
 
 ## Delivery Tracking
 - GitHub Project v1 setup runbook: [docs/github-project-v1.md](docs/github-project-v1.md)
@@ -56,6 +59,11 @@ make test
 
 ## License
 AGPL-3.0. See `LICENSE`.
+
+## Asset Model
+- `devex_platform` is the named platform asset inside this repository.
+- The current top-level platform directories remain in place for now; `devex_platform/` marks the logical asset boundary before any larger code move.
+- Future consumer-grade portfolio projects should appear as separate assets, not as subdirectories inside the platform tree by default.
 
 ## Migration Note
 Previous monorepo was archived on April 21, 2026.

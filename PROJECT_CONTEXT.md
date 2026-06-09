@@ -3,6 +3,16 @@
 ## Overview
 Platform engineering portfolio focused on Developer Experience (DevEx) and Internal Developer Platform patterns.
 
+## Default Conventions
+- Developer-facing and platform-oriented tools should default to a Python backend and React frontend.
+- Other application experiences should default to a .NET backend and Angular frontend.
+- Exceptions are allowed when a project has a documented reason to diverge.
+
+## Portfolio Boundary Direction
+- `devex_platform` is the named platform asset in this repository; the platform should not remain the implicit identity of the entire portfolio forever.
+- Future onboarding consumers should appear as separate portfolio assets once they are mature enough to belong here.
+- See `docs/portfolio-asset-boundary-plan.md` for the staged structure plan; no repo-wide code move is implied yet.
+
 ## Current Status
 - Legacy monorepo was archived on April 21, 2026.
 - Platform-first repository structure is active and in use.
