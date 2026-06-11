@@ -35,7 +35,7 @@ Create these fields in the project:
 - `Backstage`
 - `Security`
 
-4. `Status` (Single select)
+4. `Workflow` (Single select)
 - `Inbox`
 - `Ready`
 - `In Progress`
@@ -51,10 +51,15 @@ Create these fields in the project:
 6. `Due` (Date)
 7. `Owner` (Assignees)
 
+Keep GitHub's default `Status` field in the project as a coarse rollup:
+- `Todo` for `Workflow=Inbox` or `Workflow=Ready`
+- `In Progress` for `Workflow=In Progress`, `Workflow=Blocked`, or `Workflow=Review`
+- `Done` for `Workflow=Done`
+
 ## Define Views
 ### View 1: Execution Board (Kanban)
 - Layout: Board
-- Group by: `Status`
+- Group by: `Workflow`
 - Filter: `Target = Now OR Target = Next`
 - Sort: `Priority` ascending, then `Due` ascending
 
@@ -65,11 +70,11 @@ Create these fields in the project:
 
 ### View 3: Risks & Decisions
 - Layout: Table
-- Filter: `(Type = Risk OR Type = Decision) AND Status != Done`
+- Filter: `(Type = Risk OR Type = Decision) AND Workflow != Done`
 
 ### View 4: Done Log
 - Layout: Table
-- Filter: `Status = Done`
+- Filter: `Workflow = Done`
 - Sort: `Updated` descending
 
 ## Seed Initial Items
@@ -99,12 +104,12 @@ Create these **child tasks/items**:
 
 ## Default Operating Rules
 - New item defaults:
-  - `Status=Inbox`
+  - `Workflow=Inbox`
   - `Priority=P1`
   - `Target=Next`
 - Move to `Ready` only when acceptance criteria are present in item body.
-- `In Progress` requires an assignee.
-- `Done` requires linked PR/commit or evidence note.
+- `Workflow=In Progress` requires an assignee.
+- `Workflow=Done` requires linked PR/commit or evidence note.
 - `Risk` requires mitigation owner and mitigation date.
 
 ## Validation Checklist

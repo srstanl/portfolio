@@ -18,12 +18,17 @@ Contribution workflow and delivery rules for this repository.
 - Include issue-closing keywords in the PR description:
   - `Closes #<issue-number>` for implemented work.
   - `Refs #<issue-number>` for partial or related work.
-- Add the PR to the project board and set `Workflow Status=Review` while open.
+- Add the PR to the project board and set `Workflow=Review` while open.
 
 ## Project Field Defaults
 - `Priority=P1` unless explicitly elevated or deprioritized.
-- `Workflow Status=Inbox` for new items.
+- `Workflow=Inbox` for new items.
 - `Target=Next` for new items unless actively scheduled.
+- Use `Workflow` as the execution-state source of truth.
+- Keep the default GitHub `Status` field aligned as a coarse mirror:
+  - `Inbox` or `Ready` -> `Todo`
+  - `In Progress`, `Blocked`, or `Review` -> `In Progress`
+  - `Done` -> `Done`
 
 ## Definition of Done
 - Work item is complete only when:
