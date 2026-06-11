@@ -92,20 +92,26 @@ Platform engineering portfolio focused on Developer Experience (DevEx) and Inter
   4. Propose the next concrete work item before making edits.
 
 - Keyword: `save state`
-- Meaning: current task reached a stopping point; prepare hand-off and shift focus.
+- Meaning: current task reached a stopping point and work should be stored durably in remote history without waiting for follow-up prompts.
 - `save state` checklist:
   1. Update `PROJECT_CONTEXT.md` (state, decisions, next action).
   2. Update impacted README/docs for accuracy.
   3. Run quick validation for touched areas when feasible.
-  4. Summarize git status and propose commit message.
-  5. Pause for commit/push decision.
+  4. Summarize the changes and current git status.
+  5. Check the current branch name; if it is `main`, create and switch to a new branch before committing.
+  6. Commit the current work with a clear message.
+  7. Push the current branch to remote.
+  8. Call out any known validation gaps, CI blockers, or follow-up risks.
 
-- Keyword: `downtime`
+- Keyword: `end session`
 - Meaning: session is ending.
-- `downtime` checklist:
+- `end session` checklist:
   1. Update `PROJECT_CONTEXT.md` (state, decisions, next actions).
   2. Update impacted README/docs for accuracy.
-  3. Summarize git status as:
-     - ready to commit now
-     - park for later
-  4. Call out any known CI blockers or unresolved risks.
+  3. Run quick validation for touched areas when feasible.
+  4. Update the active board/task state if progress changed during the session.
+  5. Summarize the session changes and current repo state.
+  6. Check the current branch name; if it is `main`, create and switch to a new branch before committing.
+  7. Commit the current work with a clear message.
+  8. Push the current branch to remote.
+  9. Call out any known CI blockers, unresolved risks, or next recommended starting point.

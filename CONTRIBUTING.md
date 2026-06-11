@@ -47,13 +47,21 @@ Contribution workflow and delivery rules for this repository.
 - `docs/developer-guide.md`: local setup, run/test/build/debug commands.
 
 ## Session Signals
-- `save state`: task stopping point and focus-change handoff.
+- `save state`: durable handoff when work should be committed and pushed without waiting for more prompts.
   - Update `PROJECT_CONTEXT.md` with latest status/next step.
   - Update relevant docs/readmes.
   - Run quick checks for touched areas when feasible.
-  - Provide git status summary and proposed commit message.
-  - Pause for commit/push decision.
-- `downtime`: full session end handoff.
+  - Summarize the changes and current git status.
+  - Check the current branch name; if it is `main`, create and switch to a new branch before committing.
+  - Commit the work with a clear message.
+  - Push the current branch to remote.
+  - Call out validation gaps, CI blockers, and follow-up risks.
+- `end session`: full session end handoff.
   - Update context/docs.
-  - Summarize what is ready to commit vs parked.
-  - Note known blockers/risks.
+  - Run quick checks for touched areas when feasible.
+  - Update the active board/task state if progress changed during the session.
+  - Summarize the session changes and repo state.
+  - Check the current branch name; if it is `main`, create and switch to a new branch before committing.
+  - Commit the work with a clear message.
+  - Push the current branch to remote.
+  - Note known blockers, risks, and the next recommended starting point.
