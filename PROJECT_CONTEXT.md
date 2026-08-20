@@ -54,37 +54,32 @@ Platform engineering portfolio focused on Developer Experience (DevEx) and Inter
 - A Backstage Dockerfile exists at `idp/backstage-portal/Dockerfile`.
 - Repo boundary decision (May 26, 2026): `idp/backstage-portal/` remains in this repository as a platform-owned React UI module. It is not treated as a standalone product boundary.
 
-## In-Progress / Not Yet Merged
-- Angular E2E smoke setup with Playwright is in progress:
+## Delivery-Proof Status
+- The GitHub Project execution-board runbook is available at:
+  - `docs/github-project-v1.md`
+- The GitHub Project execution board is live and tracks the active first-CD epic (`#12`).
+- The local Floci AKS runtime lifecycle is merged:
+  - `make floci-aks-up`
+  - `make floci-aks-down`
+- The local Argo CD controller lifecycle is merged:
+  - `make argocd-up`
+  - `make argocd-down`
+- The remaining proof task is `#32`, using `examples/python-service` to demonstrate local artifact build, Git desired state, Argo reconciliation, and blocking health verification.
+- Consumer-project onboarding remains deferred. `problem_recommender` is tracked separately in epic `#22`.
+
+## Historical / Deferred Notes
+- Angular E2E smoke setup with Playwright remains a separate deferred concern:
   - `examples/web-angular/e2e/smoke.spec.ts`
   - `examples/web-angular/playwright.config.ts`
-  - `web-angular-ci` updated to run Playwright browser install + smoke test
-- `idp/backstage-portal/` is currently untracked in git (if intended, add selectively).
-- GitHub Project v1 execution-board runbook added at:
-  - `docs/github-project-v1.md`
-- GitHub Project execution board is now live and seeded:
-  - project: `Portfolio Execution Board`
-  - issue-backed tasks created (`#3`-`#11`) for PR-linkable execution tracking
-  - `First CD implementation` is the current active epic (`#12`)
-- CD contract and wrapper expansion are implemented locally and not yet merged:
-  - `#7` provider-agnostic deployment contract drafted in `docs/deployment-contract.md`
-  - `#8` preview/promote lane implemented for `python-service`
-  - matching wrapper pattern extended to `node-service` and `dotnet-service`
+  - `web-angular-ci` browser install and smoke-test flow
+- `idp/backstage-portal/` may be added selectively if it becomes part of a later portfolio slice.
+- Earlier CD wrapper and preview/promote lane work is historical context, not the current delivery-proof path.
+- The execution board was seeded with issue-backed tasks (`#3`-`#11`); current work is organized under the first-CD epic (`#12`).
 
 ## Immediate Next Milestones
-1. Execute CD tasks under epic `#12`:
-   - `#7` and `#8` are implemented locally; next step is PR/board closure
-   - decide whether to keep `node-cd` and `dotnet-cd` in the same PR or split follow-on work
-2. Translate the agreed toolchain into paved-road implementation slices:
-   - GitOps build and desired-state conventions
-   - Argo CD release reconciliation conventions
-   - one portable AKS-shaped delivery contract, proven first through a `floci` local-AKS bootstrap and runbook
-   - OTEL-compatible application telemetry only; observability backend selection remains deferred
-3. Clean and commit current in-flight changes:
-   - CD contract, reusable workflow refactor, and service CD wrappers
-   - `web-angular` Playwright updates
-   - optional inclusion of `idp/backstage-portal/` artifacts
-4. Optionally convert IDP template components into full Backstage `Template` entities with parameters/steps.
+1. Complete `#32`: prove `examples/python-service` from local build through Git desired state, Argo CD reconciliation on Floci AKS, and blocking health verification.
+2. Preserve OTEL-compatible telemetry format in future application work; defer observability backend selection and implementation.
+3. Resume consumer-project onboarding and the `problem_recommender` epic only after the reference delivery proof is complete.
 
 ## Session Conventions
 - Keyword: `start session`
