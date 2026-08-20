@@ -115,6 +115,39 @@ kubectl -n observability get secret kube-prometheus-stack-grafana -o jsonpath='{
 
 Then browse `http://localhost:3000` (user: `admin`).
 
+## Argo CD Bootstrap
+
+After the Floci AKS bootstrap has written `.local/floci/portfolio-aks.kubeconfig`, install the local release controller:
+
+```bash
+make argocd-up
+```
+
+The script installs the pinned `argo/argo-cd` Helm chart into the dedicated `argocd` namespace and waits for its deployments and statefulsets to become Ready. It does not create an Argo CD `Application` or deploy a workload.
+
+Access the local UI:
+
+```bash
+kubectl --kubeconfig "$PWD/.local/floci/portfolio-aks.kubeconfig" \
+  -n argocd port-forward svc/argocd-server 8080:443
+```
+
+Retrieve the initial admin password:
+
+```bash
+kubectl --kubeconfig "$PWD/.local/floci/portfolio-aks.kubeconfig" \
+  -n argocd get secret argocd-initial-admin-secret \
+  -o jsonpath='{.data.password}' | base64 --decode; echo
+```
+
+Remove the controller when it is no longer needed:
+
+```bash
+make argocd-down
+```
+
+This removes the Helm release and `argocd` namespace but leaves the Floci AKS runtime and cluster-level Argo CD CRDs intact.
+
 ## Notes
 - Override cluster name with env var:
   - `CLUSTER_NAME=my-cluster make infra-local-up`
