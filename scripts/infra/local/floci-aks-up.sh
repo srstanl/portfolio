@@ -106,6 +106,25 @@ print(match.group(1))
 PY
 )"
 
+if ! docker inspect "${k3s_container}" --format '{{.State.Running}}' 2>/dev/null | grep -qx 'true'; then
+  echo "Floci AKS resource '${FLOCI_AKS_CLUSTER}' is stale: live k3s container '${k3s_container}' is unavailable."
+  echo "recreating the Floci AKS resource"
+  curl -fsS -X DELETE "${cluster_url}" >/dev/null
+  deadline=$((SECONDS + FLOCI_AKS_TIMEOUT_SECONDS))
+  while true; do
+    status_code="$(curl -sS -o "${response_file}" -w '%{http_code}' "${cluster_url}")"
+    if [[ "${status_code}" == "404" ]]; then
+      exec "$0"
+    fi
+    if (( SECONDS >= deadline )); then
+      echo "timed out waiting for stale Floci AKS resource '${FLOCI_AKS_CLUSTER}' to delete." >&2
+      cat "${response_file}" >&2
+      exit 1
+    fi
+    sleep 2
+  done
+fi
+
 host_port="$(docker port "${k3s_container}" 6443/tcp | head -n 1 | sed -E 's/.*:([0-9]+)$/\1/')"
 if [[ ! "${host_port}" =~ ^[0-9]+$ ]]; then
   echo "could not determine the host port for ${k3s_container}:6443." >&2
@@ -134,7 +153,7 @@ PY
 
 echo "validating Kubernetes API access"
 if kubectl --kubeconfig "${FLOCI_AKS_KUBECONFIG}" get nodes >/dev/null 2>&1; then
-  kubectl --kubeconfig "${FLOCI_AKS_KUBECONFIG}" get nodes
+  :
 else
   echo "Floci returned kubeconfig credentials were rejected; using the live k3s admin kubeconfig instead."
   echo "waiting for the live k3s admin kubeconfig"
@@ -172,8 +191,22 @@ PY
     fi
     sleep 2
   done
-  kubectl --kubeconfig "${FLOCI_AKS_KUBECONFIG}" get nodes
 fi
+
+echo "waiting for a Ready Kubernetes node"
+while true; do
+  ready_node_count="$(kubectl --kubeconfig "${FLOCI_AKS_KUBECONFIG}" get nodes --no-headers 2>/dev/null \
+    | awk '$2 == "Ready" { count += 1 } END { print count + 0 }')"
+  if (( ready_node_count > 0 )); then
+    break
+  fi
+  if (( SECONDS >= deadline )); then
+    echo "timed out waiting for a Ready Kubernetes node." >&2
+    exit 1
+  fi
+  sleep 2
+done
+kubectl --kubeconfig "${FLOCI_AKS_KUBECONFIG}" get nodes
 
 echo "ensuring base namespaces exist"
 for namespace in platform-system apps-dev apps-staging apps-prod idp; do

@@ -23,7 +23,7 @@ From the repository root:
 make floci-aks-up
 ```
 
-The command is safe to rerun. It starts Floci AZ if needed, creates or reuses `portfolio-aks`, waits for the real k3s API to become ready, writes the host-reachable kubeconfig to `.local/floci/portfolio-aks.kubeconfig`, validates `kubectl` access, and creates the base application namespaces.
+The command is safe to rerun. It starts Floci AZ if needed, creates or reuses `portfolio-aks`, detects and recreates a stale AKS resource whose k3s child container disappeared after an emulator restart, waits for the real k3s API and a Ready node, writes the host-reachable kubeconfig to `.local/floci/portfolio-aks.kubeconfig`, validates `kubectl` access, and creates the base application namespaces.
 
 Use the generated context in the current shell:
 
