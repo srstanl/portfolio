@@ -1,66 +1,49 @@
-# Local vs Cloud Infra Requirements
+# Environment-Portable Delivery Requirements
 
 ## Purpose
-Define baseline requirements for platform capabilities across local and cloud environments.
+Define one delivery contract that can run against a Floci-provided local AKS/Kubernetes runtime and later against Azure.
 
-This document is the input for paved-roads standards and release policy decisions.
+Floci collapses most of the former local-versus-cloud distinction: developers and the paved road should exercise the same AKS-shaped runtime, deployment, and Azure-facing contracts locally. This document is the input for paved-roads standards and release policy decisions.
 
 The current paved-road toolchain is:
 
 - GitOps for build and desired-state change
 - Argo CD for release and runtime reconciliation
-- `floci` for local Azure emulation where it covers the needed workflow
+- `floci` for the local AKS/Kubernetes runtime and Azure emulation
 - OpenTelemetry (OTEL) as the observability format contract
 
 Observability backend selection and implementation are deliberately deferred. OTEL compatibility is the only current observability requirement.
 
 ## Scope
-- Runtime platform behavior (Kubernetes + service delivery)
+- AKS-shaped runtime platform behavior and service delivery
 - Security and promotion controls
 - OTEL telemetry contract
 - Operational requirements and ownership boundaries
 
 ## Position
-- Local emulation should be `floci`-first rather than assembling separate AWS/GCP emulator containers by default.
+- Floci is the default local AKS/Kubernetes runtime and Azure-emulation boundary; do not maintain a separate local-platform contract.
 - Git is the source of truth for desired state; builds produce immutable artifacts from committed changes.
 - Argo CD owns release reconciliation from declared desired state to the Kubernetes runtime.
-- Real cloud validation remains required for delivery, identity, observability, secrets, promotion, and governance concerns.
-- Azure is the current real-cloud target for this portfolio; local emulator choice does not replace Azure integration work.
+- Azure remains the later real-cloud target, but it is evidence for managed-service, identity, networking, and governance behavior—not a second delivery design.
 - Add bespoke local components only when `floci` cannot support a required workflow or contract test.
 
-## Requirements Matrix
+## Delivery Contract
 
-| Capability | Local Requirement | Cloud Requirement | Notes |
+| Capability | Required behavior | Later Azure evidence boundary |
 |---|---|---|---|
-| Cluster runtime | `k3d` single cluster on developer machine | Managed Kubernetes (AKS target) | Namespace parity (`apps-dev`, `apps-staging`, `apps-prod`) |
-| Ingress | Local ingress reachable via localhost/localtest domain | Managed ingress with DNS + TLS | Same route structure where possible |
-| Container registry | GHCR push/pull | GHCR or ACR (decision pending) | Keep image tagging contract stable |
-| Build and desired-state change | GitOps from committed repository state | GitOps from committed repository state | Builds produce immutable artifacts; Git remains the auditable source of truth |
-| Release reconciliation | Argo CD reconciles local declared state to the cluster | Argo CD reconciles declared state to the managed Kubernetes target | Preserve explicit promotion evidence and avoid imperative release drift |
-| Promotion stages | `dev -> staging -> prod` namespaces | `dev -> staging -> prod` environments/namespaces | Stage names remain consistent |
-| Deployment auth | Local kubeconfig on self-hosted runner for `dev` | Environment secret-based kubeconfig or workload identity | Remove long-lived secrets when cloud identity is in place |
-| Verification gates | Rollout + health + dev integration endpoint checks | Rollout + health + integration + staged verification checklist | Cloud should add stronger gate depth |
-| CI security gates | Lint/test/dependency scan/container scan | Same plus branch protection + approvals | Advisory vs blocking policy must be explicit |
-| Observability | Emit OTEL-compatible telemetry; backend selection is deferred | Emit OTEL-compatible telemetry; backend selection is deferred | Keep telemetry schema and naming stable to avoid provider lock-in |
-| Secrets management | GitHub environment secrets (minimal set) | Vault/Key Vault-backed secret management target | Transition plan required before prod hardening |
-| Policy enforcement | Workflow guards + environment protection | RBAC + environment approvals + branch protections | Simulate org role separation via env gates |
-| Data/state dependencies | `floci` as the default local emulator for cloud-style dependencies; add one-off local components only for uncovered cases | Managed equivalents with service-level requirements | Prefer one emulator boundary over many local plugin containers |
-| Runner strategy | Self-hosted runner for local dev deploy path | GitHub-hosted or hardened self-hosted pool for higher envs | Public-repo self-hosted restrictions documented |
-| Drift/traceability | Commit SHA image tags + workflow evidence | Same plus release metadata and audit trail | Link workflow runs to issues/project items |
+| Cluster runtime | Floci-provisioned AKS/Kubernetes runtime; stable namespaces (`apps-dev`, `apps-staging`, `apps-prod`) | Managed AKS behavior, capacity, and control-plane integration |
+| Ingress | Stable route structure | DNS, TLS, and managed-ingress integration |
+| Artifact and desired state | GitOps from committed repository state; immutable commit-SHA image references | Registry choice and managed registry access |
+| Release reconciliation | Argo CD reconciles declared state; no imperative release drift | Managed-cluster credentials and controller integration |
+| Promotion and verification | Stable stages, rollout completion, health, and applicable integration checks | Environment approvals, audit controls, and stronger higher-environment gates |
+| Security and policy | Lint, test, dependency scan, container scan, workflow guards, and environment protection | Workload identity, RBAC, branch protection, and organization governance |
+| Data and Azure dependencies | Floci is the default emulator boundary; add components only for uncovered contracts | Managed-service configuration and service-level requirements |
+| Observability | Emit OTEL-compatible telemetry; backend selection is deferred | Backend, retention, alerting, and managed integration when required |
+| Traceability | Commit SHA image tags and workflow evidence | Release metadata and audit-trail integration |
 
-## Local Baseline
-- Use `floci` as the default local cloud-emulation layer when service behavior needs to look cloud-like during development or contract testing.
-- Treat GitOps as the source-of-truth model for builds and declared environment state; do not make imperative cluster mutation the paved-road release path.
-- Use Argo CD as the release controller that reconciles that declared state into the local or cloud Kubernetes runtime.
-- Keep the local stack intentionally thin: Kubernetes, ingress, an OTEL-compatible telemetry boundary when needed, and one emulator boundary are preferred over many service-specific local images.
-- Avoid adding AWS- or GCP-specific local bootstrap components unless `floci` cannot cover the required scenario.
-- Treat local emulation as a developer experience and fast-feedback tool, not as proof of production readiness.
+## Evidence Boundary
 
-## Cloud-Required Capabilities
-- Identity and access boundaries must be validated against the real cloud target.
-- Promotion, approvals, audit trail, and environment governance must exist in the real delivery path.
-- Secrets and networking integrations must be proven against managed or hosted services. Observability backend validation is deferred; emitted telemetry must remain OTEL-compatible.
-- Production claims should be based on Azure-backed delivery behavior, not on local emulator parity.
+Floci proves the portable delivery contract. A later Azure proof is required only for behavior that depends on managed Azure services or organizational controls: workload identity, managed networking and TLS, Key Vault integration, RBAC, environment approvals, audit integration, and any chosen observability backend. It must not introduce a separate application or release design.
 
 ## Non-Goals (Current Phase)
 - Full production hardening for cloud identity and network controls
@@ -68,14 +51,14 @@ Observability backend selection and implementation are deliberately deferred. OT
 - Cost optimization and autoscaling policy tuning
 
 ## Acceptance Criteria for This Requirement Set
-- Stage naming and namespace/environment mapping are consistent across local and cloud.
-- CD lane requirements are documented and testable for `python-service`.
+- `python-service` can prove the GitOps-to-Argo-CD delivery flow on a Floci-provided AKS/Kubernetes runtime.
+- Stage naming and namespace/environment mapping stay portable to Azure.
 - All application telemetry is OTEL-compatible; no observability backend is selected by this requirement set.
 - Security gate intent is explicit (`blocking` vs `advisory`).
 
 ## Next Derivative Work
-1. Translate this matrix into paved-roads standards for GitOps build, Argo CD release, and `floci` local emulation.
+1. Implement the `python-service` GitOps-to-Argo-CD proof on Floci-provisioned local AKS.
 2. Define the Argo CD application and promotion conventions for the example services.
 3. Define cloud-target deltas (AKS identity, Key Vault/secrets, ingress TLS, policy/RBAC).
-4. Add a small `floci` usage note or runbook once the exact local workflows to support are agreed.
+4. Add a `floci` local-AKS bootstrap and usage runbook for the reference delivery flow.
 5. Select an OTEL-compatible observability backend only when an observability delivery requirement exists.

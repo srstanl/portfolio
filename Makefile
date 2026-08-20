@@ -1,4 +1,4 @@
-.PHONY: bootstrap lint test validate-structure scaffold-service infra-local-up infra-local-down infra-observability-up infra-observability-down infra-observability-status
+.PHONY: bootstrap lint test validate-structure scaffold-service infra-local-up infra-local-down floci-aks-up infra-observability-up infra-observability-down infra-observability-status
 
 bootstrap:
 	@echo "Bootstrap complete (install toolchains as needed)."
@@ -27,6 +27,9 @@ infra-local-up:
 
 infra-local-down:
 	@./scripts/infra/local/k3d-down.sh
+
+floci-aks-up:
+	@./scripts/infra/local/floci-aks-up.sh
 
 infra-observability-up:
 	@./scripts/infra/local/observability-up.sh

@@ -1,9 +1,44 @@
 # Local Infra Bootstrap
 
 ## Purpose
-Stand up a local Kubernetes baseline for platform/CD work using `k3d`.
+> **Status:** this `k3d` bootstrap is a legacy local-development path. The paved-road delivery target is a Floci-provisioned local AKS/Kubernetes runtime; do not extend this path for the current computer-to-Kubernetes proof. It remains documented only until the Floci bootstrap replaces it.
 
-## Prerequisites
+Stand up a legacy local Kubernetes baseline for platform/CD work using `k3d`.
+
+## Floci AKS Bootstrap (Paved-Road Path)
+
+The current paved-road path uses Floci AZ to provision an AKS-compatible resource backed by a real local `k3s` container. The bootstrap script handles the otherwise easy-to-miss host-access handoff: Floci returns a kubeconfig with a Docker-internal API hostname, and the script replaces it with the corresponding host-published `localhost` endpoint before validating access. If the current Floci-generated bearer token is rejected by the live k3s API, the script automatically uses the live cluster's client-certificate admin kubeconfig instead.
+
+Prerequisites:
+
+- Docker Desktop (running)
+- Floci CLI with the Azure emulator available
+- `kubectl`
+- `curl`
+- `python3`
+
+From the repository root:
+
+```bash
+make floci-aks-up
+```
+
+The command is safe to rerun. It starts Floci AZ if needed, creates or reuses `portfolio-aks`, writes the host-reachable kubeconfig to `.local/floci/portfolio-aks.kubeconfig`, validates `kubectl` access, and creates the base application namespaces.
+
+Use the generated context in the current shell:
+
+```bash
+export KUBECONFIG="$PWD/.local/floci/portfolio-aks.kubeconfig"
+kubectl get nodes
+```
+
+Override defaults when needed:
+
+```bash
+FLOCI_AKS_CLUSTER=my-aks FLOCI_AKS_KUBECONFIG=.local/floci/my-aks.kubeconfig make floci-aks-up
+```
+
+## Legacy k3d Prerequisites
 - Docker Desktop (running)
 - `k3d`
 - `kubectl`
