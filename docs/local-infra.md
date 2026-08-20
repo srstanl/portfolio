@@ -38,6 +38,14 @@ Override defaults when needed:
 FLOCI_AKS_CLUSTER=my-aks FLOCI_AKS_KUBECONFIG=.local/floci/my-aks.kubeconfig make floci-aks-up
 ```
 
+Tear down the named AKS resource when finished:
+
+```bash
+make floci-aks-down
+```
+
+This deletes `portfolio-aks` and its generated kubeconfig, but deliberately leaves the shared Floci AZ emulator container running. Use the same `FLOCI_AKS_CLUSTER` and `FLOCI_AKS_KUBECONFIG` overrides when removing a non-default cluster.
+
 ## Legacy k3d Prerequisites
 - Docker Desktop (running)
 - `k3d`
