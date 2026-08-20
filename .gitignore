@@ -50,3 +50,4 @@ TestResults/
 coverage/
 tmp/
 temp/
+.local/
