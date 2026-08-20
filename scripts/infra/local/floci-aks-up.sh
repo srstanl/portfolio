@@ -137,6 +137,15 @@ if kubectl --kubeconfig "${FLOCI_AKS_KUBECONFIG}" get nodes >/dev/null 2>&1; the
   kubectl --kubeconfig "${FLOCI_AKS_KUBECONFIG}" get nodes
 else
   echo "Floci returned kubeconfig credentials were rejected; using the live k3s admin kubeconfig instead."
+  echo "waiting for the live k3s admin kubeconfig"
+  while ! docker exec "${k3s_container}" test -s /etc/rancher/k3s/k3s.yaml >/dev/null 2>&1; do
+    if (( SECONDS >= deadline )); then
+      echo "timed out waiting for ${k3s_container} to write its admin kubeconfig." >&2
+      echo "container state: $(docker inspect "${k3s_container}" --format '{{.State.Status}}' 2>/dev/null || echo missing)" >&2
+      exit 1
+    fi
+    sleep 2
+  done
   docker cp "${k3s_container}:/etc/rancher/k3s/k3s.yaml" "${FLOCI_AKS_KUBECONFIG}"
   python3 - "${FLOCI_AKS_KUBECONFIG}" "${host_port}" <<'PY'
 import pathlib
@@ -155,6 +164,14 @@ if replacements != 1:
     raise SystemExit("could not replace the live k3s API endpoint in the kubeconfig")
 kubeconfig_path.write_text(updated)
 PY
+  echo "waiting for the live Kubernetes API"
+  while ! kubectl --kubeconfig "${FLOCI_AKS_KUBECONFIG}" get nodes >/dev/null 2>&1; do
+    if (( SECONDS >= deadline )); then
+      echo "timed out waiting for the live Kubernetes API." >&2
+      exit 1
+    fi
+    sleep 2
+  done
   kubectl --kubeconfig "${FLOCI_AKS_KUBECONFIG}" get nodes
 fi
 
