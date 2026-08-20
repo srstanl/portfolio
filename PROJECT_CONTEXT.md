@@ -30,6 +30,7 @@ Platform engineering portfolio focused on Developer Experience (DevEx) and Inter
   - `make scaffold-service TEMPLATE=<template> NAME=<service-name>`
 - IDP artifacts were added under `idp/catalog` (Backstage-style catalog entities).
 - CI/CD workflows are in place with path filtering, manual dispatch, pinned action SHAs, and concurrency cancellation.
+- Paved-road toolchain decision: GitOps for build and desired-state change, Argo CD for release reconciliation, and `floci` for local Azure emulation. Observability is deferred except for the requirement that telemetry stays OTEL-compatible.
 
 ## CI/Security Posture
 - Shared platform checks (`platform-ci`):
@@ -74,8 +75,11 @@ Platform engineering portfolio focused on Developer Experience (DevEx) and Inter
 1. Execute CD tasks under epic `#12`:
    - `#7` and `#8` are implemented locally; next step is PR/board closure
    - decide whether to keep `node-cd` and `dotnet-cd` in the same PR or split follow-on work
-2. Finalize local vs cloud infra requirements baseline:
-   - `docs/local-vs-cloud-requirements.md` (drives paved-roads standards)
+2. Translate the agreed toolchain into paved-road implementation slices:
+   - GitOps build and desired-state conventions
+   - Argo CD release reconciliation conventions
+   - `floci` local Azure-emulation runbook
+   - OTEL-compatible application telemetry only; observability backend selection remains deferred
 3. Clean and commit current in-flight changes:
    - CD contract, reusable workflow refactor, and service CD wrappers
    - `web-angular` Playwright updates
