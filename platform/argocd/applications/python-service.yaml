@@ -9,7 +9,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/srstanl/portfolio.git
-    targetRevision: feat/python-service-argo-proof
+    targetRevision: main
     path: platform/cd/python-service/overlays/floci
   destination:
     server: https://kubernetes.default.svc

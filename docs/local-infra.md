@@ -160,7 +160,7 @@ make python-service-proof-up
 
 The proof builds `examples/python-service` on the workstation, tags it with the committed Git tree ID for that service, and imports that exact image into the Floci-backed k3s node. The Git-tracked Floci overlay pins the same image reference with `imagePullPolicy: Never`; the Git-tracked Argo CD `Application` then reconciles that overlay into `apps-dev`.
 
-The command blocks until Argo CD reports `Synced` and `Healthy`, the Kubernetes deployment finishes rolling out, and an in-cluster request to `http://python-service:8080/health` succeeds. Its final output records the artifact reference, source tree ID, Argo result, and deployment target.
+The command blocks until Argo CD reports `Synced`, the Kubernetes deployment finishes rolling out, and an in-cluster request to `http://python-service:8080/health` succeeds. Its final output records the artifact reference, source tree ID, Argo result, and deployment target. The rollout and health gates are authoritative for this proof because the local Traefik Ingress does not publish a load-balancer status for Argo CD to mark healthy.
 
 If the Python service source changes, commit it and update the image tag in `platform/cd/python-service/overlays/floci/kustomization.yaml` to the new value from:
 

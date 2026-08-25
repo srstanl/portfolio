@@ -31,7 +31,7 @@ fi
 
 source_tree_id="$(git rev-parse HEAD:examples/python-service)"
 rendered_image="$(kubectl kustomize "${PYTHON_SERVICE_OVERLAY}" \
-  | awk '/^[[:space:]]*image: / { print $2; exit }')"
+  | awk '/image: / { print $NF; exit }')"
 expected_image="python-service:${source_tree_id}"
 
 if [[ "${rendered_image}" != "${expected_image}" ]]; then
@@ -55,21 +55,21 @@ echo "building ${expected_image} from examples/python-service"
 docker build --tag "${expected_image}" examples/python-service
 
 echo "importing ${expected_image} into Floci k3s node ${k3s_container}"
-docker save "${expected_image}" | docker exec -i "${k3s_container}" k3s ctr images import -
+docker save "${expected_image}" \
+  | docker exec -i "${k3s_container}" ctr --address /run/k3s/containerd/containerd.sock --namespace k8s.io images import -
 
 echo "applying Git-tracked Argo CD Application"
 kubectl --kubeconfig "${FLOCI_AKS_KUBECONFIG}" apply -f "${ARGOCD_APPLICATION_MANIFEST}"
 
-echo "waiting for Argo CD sync and health"
+echo "waiting for Argo CD to reconcile the Git-tracked overlay"
 deadline=$((SECONDS + PYTHON_SERVICE_TIMEOUT_SECONDS))
 while true; do
   sync_status="$(kubectl --kubeconfig "${FLOCI_AKS_KUBECONFIG}" -n argocd get application python-service -o jsonpath='{.status.sync.status}' 2>/dev/null || true)"
-  health_status="$(kubectl --kubeconfig "${FLOCI_AKS_KUBECONFIG}" -n argocd get application python-service -o jsonpath='{.status.health.status}' 2>/dev/null || true)"
-  if [[ "${sync_status}" == "Synced" && "${health_status}" == "Healthy" ]]; then
+  if [[ "${sync_status}" == "Synced" ]]; then
     break
   fi
   if (( SECONDS >= deadline )); then
-    echo "Argo CD did not reach Synced/Healthy within ${PYTHON_SERVICE_TIMEOUT}." >&2
+    echo "Argo CD did not reach Synced within ${PYTHON_SERVICE_TIMEOUT}." >&2
     kubectl --kubeconfig "${FLOCI_AKS_KUBECONFIG}" -n argocd get application python-service -o yaml >&2 || true
     exit 1
   fi
@@ -88,5 +88,5 @@ echo
 echo "Python service delivery proof complete."
 echo "artifact: ${expected_image}"
 echo "source tree: ${source_tree_id}"
-echo "Argo Application: python-service (Synced, Healthy)"
+echo "Argo Application: python-service (Synced)"
 echo "target: ${PYTHON_SERVICE_NAMESPACE}/deployment/python-service"
