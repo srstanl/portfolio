@@ -7,6 +7,7 @@ FLOCI_AKS_KUBECONFIG="${FLOCI_AKS_KUBECONFIG:-.local/floci/portfolio-aks.kubecon
 SERVICE_NAMESPACE="${SERVICE_NAMESPACE:-apps-dev}"
 SERVICE_TIMEOUT="${SERVICE_TIMEOUT:-5m}"
 SERVICE_TIMEOUT_SECONDS="${SERVICE_TIMEOUT_SECONDS:-300}"
+ARGOCD_APPLICATION_REVISION="${ARGOCD_APPLICATION_REVISION:-}"
 
 for required_variable in SERVICE_NAME SERVICE_SOURCE_PATH SERVICE_OVERLAY ARGOCD_APPLICATION_MANIFEST; do
   if [[ -z "${!required_variable:-}" ]]; then
@@ -64,6 +65,13 @@ docker save "${expected_image}" \
 
 echo "applying Git-tracked Argo CD Application"
 kubectl --kubeconfig "${FLOCI_AKS_KUBECONFIG}" apply -f "${ARGOCD_APPLICATION_MANIFEST}"
+
+if [[ -n "${ARGOCD_APPLICATION_REVISION}" ]]; then
+  echo "using Argo CD revision override ${ARGOCD_APPLICATION_REVISION} for this local proof"
+  kubectl --kubeconfig "${FLOCI_AKS_KUBECONFIG}" -n argocd patch application "${SERVICE_NAME}" \
+    --type merge \
+    -p "{\"spec\":{\"source\":{\"targetRevision\":\"${ARGOCD_APPLICATION_REVISION}\"}}}"
+fi
 
 echo "waiting for Argo CD to reconcile the Git-tracked overlay"
 deadline=$((SECONDS + SERVICE_TIMEOUT_SECONDS))
