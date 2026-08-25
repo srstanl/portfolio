@@ -57,7 +57,7 @@ Platform engineering portfolio focused on Developer Experience (DevEx) and Inter
 ## Delivery-Proof Status
 - The GitHub Project execution-board runbook is available at:
   - `docs/github-project-v1.md`
-- The GitHub Project execution board is live and tracks the active first-CD epic (`#12`).
+- The GitHub Project execution board is live; the first-CD epic (`#12`) is complete.
 - The local Floci AKS runtime lifecycle is merged:
   - `make floci-aks-up`
   - `make floci-aks-down`
@@ -65,7 +65,8 @@ Platform engineering portfolio focused on Developer Experience (DevEx) and Inter
   - `make argocd-up`
   - `make argocd-down`
 - The Python reference proof (`#32`) is complete: it demonstrated a local artifact build, Git desired state, Argo reconciliation, and blocking health verification on Floci AKS.
-- The active proof task is `#35`, applying the same delivery contract to `examples/dotnet-service` and extracting only shared platform behavior where both services need it.
+- The .NET reference proof (`#35`) is complete through the same shared local delivery path.
+- The platform asset remains a logical boundary; `docs/platform-asset-charter.md` defines the current producer, reference-adopter, consumer, and governance boundaries without a code move.
 - Consumer-project onboarding remains deferred. `problem_recommender` is tracked separately in epic `#22`.
 
 ## Historical / Deferred Notes
@@ -75,12 +76,12 @@ Platform engineering portfolio focused on Developer Experience (DevEx) and Inter
   - `web-angular-ci` browser install and smoke-test flow
 - `idp/backstage-portal/` may be added selectively if it becomes part of a later portfolio slice.
 - Earlier CD wrapper and preview/promote lane work is historical context, not the current delivery-proof path.
-- The execution board was seeded with issue-backed tasks (`#3`-`#11`); current work is organized under the first-CD epic (`#12`).
+- The execution board was seeded with issue-backed tasks (`#3`-`#11`); the first-CD epic (`#12`) is complete.
 
 ## Immediate Next Milestones
-1. Complete `#35`: prove `examples/dotnet-service` from local build through Git desired state, Argo CD reconciliation on Floci AKS, and blocking health verification.
+1. Choose the next delivery capability deliberately: registry-backed artifact promotion or later real-AKS evidence. The local proof is complete.
 2. Preserve OTEL-compatible telemetry format in future application work; defer observability backend selection and implementation.
-3. Resume consumer-project onboarding and the `problem_recommender` epic only after the reference delivery proof is complete.
+3. Resume consumer-project onboarding and the `problem_recommender` epic only when a consumer is ready to use the completed reference delivery path.
 
 ## Session Conventions
 - Keyword: `start session`

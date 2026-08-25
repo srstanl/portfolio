@@ -20,7 +20,7 @@ Platform-first portfolio repository focused on Internal Developer Platform (IDP)
 - `idp/` Developer portal and catalog integration
 - `templates/` Service templates (scaffolding and standards)
 - `paved-roads/` Reusable CI/CD, policies, observability defaults
-- `examples/` Reference services that consume the platform contract
+- `examples/` Platform-native reference adopters that prove the platform contract
 - `docs/` Architecture and operating model
 
 ## Getting Started
@@ -63,6 +63,7 @@ AGPL-3.0. See `LICENSE`.
 ## Asset Model
 - `devex_platform` is the named platform asset inside this repository.
 - The current top-level platform directories remain in place for now; `devex_platform/` marks the logical asset boundary before any larger code move.
+- The logical producer, reference-adopter, consumer, and governance boundaries are defined in [docs/platform-asset-charter.md](docs/platform-asset-charter.md).
 - Future consumer-grade portfolio projects should appear as separate assets, not as subdirectories inside the platform tree by default.
 
 ## Migration Note
