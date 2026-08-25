@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: python-service
+  namespace: argocd
+  labels:
+    app.kubernetes.io/part-of: portfolio-delivery-proof
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/srstanl/portfolio.git
+    targetRevision: feat/python-service-argo-proof
+    path: platform/cd/python-service/overlays/floci
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: apps-dev
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=false

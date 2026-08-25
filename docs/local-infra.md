@@ -148,6 +148,28 @@ make argocd-down
 
 This removes the Helm release and `argocd` namespace but leaves the Floci AKS runtime and cluster-level Argo CD CRDs intact.
 
+## Python Service GitOps Proof
+
+After the Floci AKS runtime and Argo CD controller are available, prove the full local delivery path for `examples/python-service`:
+
+```bash
+make floci-aks-up
+make argocd-up
+make python-service-proof-up
+```
+
+The proof builds `examples/python-service` on the workstation, tags it with the committed Git tree ID for that service, and imports that exact image into the Floci-backed k3s node. The Git-tracked Floci overlay pins the same image reference with `imagePullPolicy: Never`; the Git-tracked Argo CD `Application` then reconciles that overlay into `apps-dev`.
+
+The command blocks until Argo CD reports `Synced` and `Healthy`, the Kubernetes deployment finishes rolling out, and an in-cluster request to `http://python-service:8080/health` succeeds. Its final output records the artifact reference, source tree ID, Argo result, and deployment target.
+
+If the Python service source changes, commit it and update the image tag in `platform/cd/python-service/overlays/floci/kustomization.yaml` to the new value from:
+
+```bash
+git rev-parse HEAD:examples/python-service
+```
+
+The `Application` deliberately targets `main`, so run the proof from a merged `main` checkout. This keeps the reconciled desired state auditable on the repository's default branch.
+
 ## Notes
 - Override cluster name with env var:
   - `CLUSTER_NAME=my-cluster make infra-local-up`

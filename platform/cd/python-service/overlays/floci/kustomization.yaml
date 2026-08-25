@@ -1,0 +1,21 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: apps-dev
+
+resources:
+  - ../../base
+
+images:
+  - name: ghcr.io/example/python-service
+    newName: python-service
+    newTag: c993eff33f68cce050f053cd3f7c21c9e3dcc2a1
+
+patches:
+  - target:
+      kind: Deployment
+      name: python-service
+    patch: |- 
+      - op: replace
+        path: /spec/template/spec/containers/0/imagePullPolicy
+        value: Never
