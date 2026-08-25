@@ -24,7 +24,7 @@ if ! docker info >/dev/null 2>&1; then
   exit 1
 fi
 
-if ! floci az status >/dev/null 2>&1; then
+if ! curl -sS --connect-timeout 2 -o /dev/null "${FLOCI_AZ_ENDPOINT}"; then
   echo "starting Floci AZ"
   floci az start
 fi
