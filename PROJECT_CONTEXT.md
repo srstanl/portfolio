@@ -64,7 +64,8 @@ Platform engineering portfolio focused on Developer Experience (DevEx) and Inter
 - The local Argo CD controller lifecycle is merged:
   - `make argocd-up`
   - `make argocd-down`
-- The remaining proof task is `#32`, using `examples/python-service` to demonstrate local artifact build, Git desired state, Argo reconciliation, and blocking health verification.
+- The Python reference proof (`#32`) is complete: it demonstrated a local artifact build, Git desired state, Argo reconciliation, and blocking health verification on Floci AKS.
+- The active proof task is `#35`, applying the same delivery contract to `examples/dotnet-service` and extracting only shared platform behavior where both services need it.
 - Consumer-project onboarding remains deferred. `problem_recommender` is tracked separately in epic `#22`.
 
 ## Historical / Deferred Notes
@@ -77,7 +78,7 @@ Platform engineering portfolio focused on Developer Experience (DevEx) and Inter
 - The execution board was seeded with issue-backed tasks (`#3`-`#11`); current work is organized under the first-CD epic (`#12`).
 
 ## Immediate Next Milestones
-1. Complete `#32`: prove `examples/python-service` from local build through Git desired state, Argo CD reconciliation on Floci AKS, and blocking health verification.
+1. Complete `#35`: prove `examples/dotnet-service` from local build through Git desired state, Argo CD reconciliation on Floci AKS, and blocking health verification.
 2. Preserve OTEL-compatible telemetry format in future application work; defer observability backend selection and implementation.
 3. Resume consumer-project onboarding and the `problem_recommender` epic only after the reference delivery proof is complete.
 
