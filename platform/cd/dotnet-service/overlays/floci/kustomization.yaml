@@ -1,0 +1,21 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: apps-dev
+
+resources:
+  - ../../base
+
+images:
+  - name: ghcr.io/example/dotnet-service
+    newName: dotnet-service
+    newTag: b4ba02a95776ade6edeab4af603e7bc20a4a68f3
+
+patches:
+  - target:
+      kind: Deployment
+      name: dotnet-service
+    patch: |-
+      - op: replace
+        path: /spec/template/spec/containers/0/imagePullPolicy
+        value: Never
