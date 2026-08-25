@@ -170,6 +170,24 @@ git rev-parse HEAD:examples/python-service
 
 The `Application` deliberately targets `main`, so run the proof from a merged `main` checkout. This keeps the reconciled desired state auditable on the repository's default branch.
 
+## .NET Service GitOps Proof
+
+The .NET reference service uses the same shared local proof mechanism. After the Floci AKS runtime and Argo CD controller are available, run:
+
+```bash
+make floci-aks-up
+make argocd-up
+make dotnet-service-proof-up
+```
+
+The .NET Floci overlay pins `examples/dotnet-service` to its committed Git tree ID and the Argo CD `dotnet-service` Application reconciles it to `apps-dev`. The proof blocks on Argo synchronization, the Kubernetes rollout, and an in-cluster `/health` response, then prints the artifact, source tree, target, and release evidence.
+
+Before the proof PR is merged, validate the pushed branch explicitly while retaining `main` as the committed Application revision:
+
+```bash
+ARGOCD_APPLICATION_REVISION="$(git branch --show-current)" make dotnet-service-proof-up
+```
+
 ## Notes
 - Override cluster name with env var:
   - `CLUSTER_NAME=my-cluster make infra-local-up`
