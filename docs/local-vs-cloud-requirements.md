@@ -22,7 +22,7 @@ Observability backend selection and implementation are deliberately deferred. OT
 
 ## Position
 - Floci is the default local AKS/Kubernetes runtime and Azure-emulation boundary; do not maintain a separate local-platform contract.
-- Git is the source of truth for desired state; builds produce immutable artifacts from committed changes.
+- Git is the source of truth for desired state; builds produce immutable artifacts from committed changes and publish them to the selected registry.
 - Argo CD owns release reconciliation from declared desired state to the Kubernetes runtime.
 - Azure remains the later real-cloud target, but it is evidence for managed-service, identity, networking, and governance behavior—not a second delivery design.
 - Add bespoke local components only when `floci` cannot support a required workflow or contract test.
@@ -33,7 +33,7 @@ Observability backend selection and implementation are deliberately deferred. OT
 |---|---|---|---|
 | Cluster runtime | Floci-provisioned AKS/Kubernetes runtime; stable namespaces (`apps-dev`, `apps-staging`, `apps-prod`) | Managed AKS behavior, capacity, and control-plane integration |
 | Ingress | Stable route structure | DNS, TLS, and managed-ingress integration |
-| Artifact and desired state | GitOps from committed repository state; immutable commit-SHA image references | Registry choice and managed registry access |
+| Artifact and desired state | GitOps from committed repository state; immutable Git-tree image tags published to Floci ACR and pulled by k3s | Azure Container Registry access, managed identity, and `AcrPull` authorization |
 | Release reconciliation | Argo CD reconciles declared state; no imperative release drift | Managed-cluster credentials and controller integration |
 | Promotion and verification | Stable stages, rollout completion, health, and applicable integration checks | Environment approvals, audit controls, and stronger higher-environment gates |
 | Security and policy | Lint, test, dependency scan, container scan, workflow guards, and environment protection | Workload identity, RBAC, branch protection, and organization governance |
@@ -43,7 +43,7 @@ Observability backend selection and implementation are deliberately deferred. OT
 
 ## Evidence Boundary
 
-Floci proves the portable delivery contract. A later Azure proof is required only for behavior that depends on managed Azure services or organizational controls: workload identity, managed networking and TLS, Key Vault integration, RBAC, environment approvals, audit integration, and any chosen observability backend. It must not introduce a separate application or release design.
+Floci proves the portable delivery contract, including Docker Registry v2 push/pull and a fresh Kubernetes image pull. Its local ACR intentionally does not prove Azure Container Registry authorization semantics. A later Azure proof is required only for behavior that depends on managed Azure services or organizational controls: workload identity, managed networking and TLS, Key Vault integration, RBAC (including `AcrPull`), environment approvals, audit integration, and any chosen observability backend. It must not introduce a separate application or release design.
 
 ## Non-Goals (Current Phase)
 - Full production hardening for cloud identity and network controls
@@ -51,7 +51,7 @@ Floci proves the portable delivery contract. A later Azure proof is required onl
 - Cost optimization and autoscaling policy tuning
 
 ## Acceptance Criteria for This Requirement Set
-- `python-service` can prove the GitOps-to-Argo-CD delivery flow on a Floci-provided AKS/Kubernetes runtime.
+- `python-service` can prove a Git-tree-tagged Floci ACR artifact push, GitOps-to-Argo-CD reconciliation, a fresh Kubernetes registry pull, and blocking health verification on a Floci-provided AKS/Kubernetes runtime.
 - Stage naming and namespace/environment mapping stay portable to Azure.
 - All application telemetry is OTEL-compatible; no observability backend is selected by this requirement set.
 - Security gate intent is explicit (`blocking` vs `advisory`).
