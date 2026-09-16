@@ -12,12 +12,12 @@
 - `idp/` Developer portal setup, catalog descriptors, docs ingestion.
 - `templates/` Golden path service templates.
 - `paved-roads/` Shared delivery standards and tooling.
-- `examples/` Sample services built from templates.
+- `examples/` Platform-native reference adopters built from templates.
 
 ## Ownership boundaries
-- Platform team owns `platform/`, `idp/`, `paved-roads/`.
+- Platform team owns `platform/`, `idp/`, `paved-roads/`, and the shared local proof tooling.
 - Enablement/platform-experience owns `templates/`.
-- Application teams own `examples/` (or real services in future repos).
+- Platform team owns `examples/` while they remain controlled reference adopters; consumer teams own real services when they are onboarded as separate assets.
 
 ## CI expectations
 - Changes in one boundary should not trigger unrelated pipelines.
@@ -29,4 +29,6 @@
 - `devex_platform/` names the platform asset explicitly, even while platform-owned code still spans multiple top-level directories.
 - Platform-owned assets stay under platform-oriented boundaries such as `platform/`, `idp/`, `templates/`, and `paved-roads/`.
 - Future portfolio-grade consumers should appear as separate assets rather than being inserted into the platform tree by default.
+- `platform/cd/<example>/` and matching Argo Applications are platform-owned only while they describe reference adopters; consumer desired state belongs with the consumer.
 - See `docs/portfolio-asset-boundary-plan.md` for the staged evolution model.
+- See `docs/platform-asset-charter.md` for the current logical ownership map.

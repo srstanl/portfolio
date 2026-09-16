@@ -9,7 +9,7 @@ It represents the producer side of the portfolio:
 - templates and onboarding standards
 - shared runtime and operational guidance
 
-At this stage, this directory is a logical boundary marker rather than the final home of every platform-owned file.
+At this stage, this directory is a logical boundary marker rather than the final home of every platform-owned file. The platform's logical composition and the reference-adopter boundary are defined in [the platform asset charter](../docs/platform-asset-charter.md).
 
 For now:
 - platform-owned assets may still remain in top-level directories such as `platform/`, `idp/`, `templates/`, and `paved-roads/`
@@ -18,3 +18,4 @@ For now:
 See:
 - `../docs/portfolio-asset-boundary-plan.md`
 - `../docs/repo-structure.md`
+- `../docs/platform-asset-charter.md`
