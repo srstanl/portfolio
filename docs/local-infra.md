@@ -46,6 +46,30 @@ make floci-aks-down
 
 This deletes `portfolio-aks` and its generated kubeconfig, but deliberately leaves the shared Floci AZ emulator container running. Use the same `FLOCI_AKS_CLUSTER` and `FLOCI_AKS_KUBECONFIG` overrides when removing a non-default cluster.
 
+## Floci ACR Bootstrap (Paved-Road Path)
+
+Floci ACR provides the local artifact registry for the same proof path. It uses a real Docker Registry v2 sidecar, so the workstation pushes to the host-published endpoint and the k3s node pulls through Docker Desktop's stable host alias:
+
+- host push reference: `localhost:5000/portfolioacr/<service>:<git-tree-id>`
+- Git-tracked k3s pull reference: `host.docker.internal:5000/portfolioacr/<service>:<git-tree-id>`
+
+Bootstrap it after AKS:
+
+```bash
+make floci-aks-up
+make floci-acr-up
+```
+
+The command safely creates or reuses `portfolioacr`, verifies the Docker Registry v2 endpoint, and configures the live k3s node to use its plain-HTTP endpoint. It restarts k3s only when its registry configuration changes. Floci may keep the ARM resource's `provisioningState` at `Creating` after the registry is usable; the registry `/v2/` health check and a Kubernetes pull are the readiness evidence used by this repository.
+
+Remove the named ACR resource when finished:
+
+```bash
+make floci-acr-down
+```
+
+This deletes `portfolioacr` but leaves Floci AZ running. Floci's registry sidecar is shared, so it may remain while the emulator has other registry resources.
+
 ## Legacy k3d Prerequisites
 - Docker Desktop (running)
 - `k3d`
@@ -154,13 +178,14 @@ After the Floci AKS runtime and Argo CD controller are available, prove the full
 
 ```bash
 make floci-aks-up
+make floci-acr-up
 make argocd-up
 make python-service-proof-up
 ```
 
-The proof builds `examples/python-service` on the workstation, tags it with the committed Git tree ID for that service, and imports that exact image into the Floci-backed k3s node. The Git-tracked Floci overlay pins the same image reference with `imagePullPolicy: Never`; the Git-tracked Argo CD `Application` then reconciles that overlay into `apps-dev`.
+The proof builds `examples/python-service` on the workstation, tags it with the committed Git tree ID for that service, pushes the artifact to Floci ACR, and removes any matching cached node image before reconciliation. The Git-tracked Floci overlay pins the k3s-reachable registry reference and uses `imagePullPolicy: Always`; the Git-tracked Argo CD `Application` then reconciles that overlay into `apps-dev`.
 
-The command blocks until Argo CD reports `Synced`, the Kubernetes deployment finishes rolling out, and an in-cluster request to `http://python-service:8080/health` succeeds. Its final output records the artifact reference, source tree ID, Argo result, and deployment target. The rollout and health gates are authoritative for this proof because the local Traefik Ingress does not publish a load-balancer status for Argo CD to mark healthy.
+The command blocks until Argo CD reports `Synced`, the Kubernetes deployment finishes rolling out, and an in-cluster request to `http://python-service:8080/health` succeeds. Its final output records the k3s image reference, registry digest, source tree ID, Argo result, and deployment target. The rollout and health gates are authoritative for this proof because the local Traefik Ingress does not publish a load-balancer status for Argo CD to mark healthy.
 
 If the Python service source changes, commit it and update the image tag in `platform/cd/python-service/overlays/floci/kustomization.yaml` to the new value from:
 
@@ -176,11 +201,12 @@ The .NET reference service uses the same shared local proof mechanism. After the
 
 ```bash
 make floci-aks-up
+make floci-acr-up
 make argocd-up
 make dotnet-service-proof-up
 ```
 
-The .NET Floci overlay pins `examples/dotnet-service` to its committed Git tree ID and the Argo CD `dotnet-service` Application reconciles it to `apps-dev`. The proof blocks on Argo synchronization, the Kubernetes rollout, and an in-cluster `/health` response, then prints the artifact, source tree, target, and release evidence.
+The .NET Floci overlay pins `examples/dotnet-service` to its committed Git tree ID in Floci ACR and the Argo CD `dotnet-service` Application reconciles it to `apps-dev`. The proof blocks on Argo synchronization, the Kubernetes rollout, and an in-cluster `/health` response, then prints the registry artifact and digest, source tree, target, and release evidence.
 
 Before the proof PR is merged, validate the pushed branch explicitly while retaining `main` as the committed Application revision:
 

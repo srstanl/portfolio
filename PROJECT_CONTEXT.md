@@ -66,6 +66,7 @@ Platform engineering portfolio focused on Developer Experience (DevEx) and Inter
   - `make argocd-down`
 - The Python reference proof (`#32`) is complete: it demonstrated a local artifact build, Git desired state, Argo reconciliation, and blocking health verification on Floci AKS.
 - The .NET reference proof (`#35`) is complete through the same shared local delivery path.
+- Registry-backed local promotion (`#39`, PR `#40`) is in review: Floci ACR replaces the direct k3s image-import shortcut with a Docker Registry v2 push and a fresh k3s pull. Azure ACR identity and authorization remain a later evidence boundary.
 - The platform asset remains a logical boundary; `docs/platform-asset-charter.md` defines the current producer, reference-adopter, consumer, and governance boundaries without a code move.
 - Consumer-project onboarding remains deferred. `problem_recommender` is tracked separately in epic `#22`.
 
@@ -79,7 +80,7 @@ Platform engineering portfolio focused on Developer Experience (DevEx) and Inter
 - The execution board was seeded with issue-backed tasks (`#3`-`#11`); the first-CD epic (`#12`) is complete.
 
 ## Immediate Next Milestones
-1. Choose the next delivery capability deliberately: registry-backed artifact promotion or later real-AKS evidence. The local proof is complete.
+1. Complete the registry-backed Floci ACR promotion proof, then choose the next delivery capability deliberately (for example, later real-AKS evidence).
 2. Preserve OTEL-compatible telemetry format in future application work; defer observability backend selection and implementation.
 3. Resume consumer-project onboarding and the `problem_recommender` epic only when a consumer is ready to use the completed reference delivery path.
 
