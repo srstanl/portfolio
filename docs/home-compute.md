@@ -31,10 +31,9 @@ make home-validate
 make home-linux-check
 ```
 
-These targets only dispatch GitHub Actions; they never start a laptop Docker daemon. They default to `main`. Until PR #40 is merged, select its reviewed branch explicitly for `infra-up` or `validate`:
+These targets only dispatch GitHub Actions; they never start a laptop Docker daemon. They default to `main`, which includes the registry-backed promotion from merged PR #40. To inspect recent native runs:
 
 ```bash
-HOME_COMPUTE_PORTFOLIO_REF=feat/floci-acr-promotion make home-validate
 gh run list --repo srstanl/portfolio-home-control --workflow home-compute.yml
 ```
 
