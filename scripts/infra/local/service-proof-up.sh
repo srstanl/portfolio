@@ -19,7 +19,7 @@ for required_variable in SERVICE_NAME SERVICE_SOURCE_PATH SERVICE_OVERLAY ARGOCD
   fi
 done
 
-for command in docker git kubectl; do
+for command in docker git kubectl python3; do
   if ! command -v "${command}" >/dev/null 2>&1; then
     echo "missing required command: ${command}" >&2
     exit 1
@@ -32,11 +32,15 @@ if [[ ! -f "${FLOCI_AKS_KUBECONFIG}" ]]; then
   exit 1
 fi
 
-if ! git diff --quiet -- "${SERVICE_SOURCE_PATH}"; then
+if [[ -n "$(git status --porcelain -- "${SERVICE_SOURCE_PATH}")" ]]; then
   echo "${SERVICE_SOURCE_PATH} has uncommitted changes." >&2
   echo "Commit the service source before creating a deterministic proof artifact." >&2
   exit 1
 fi
+
+desired_revision="$(git rev-parse HEAD)"
+proof_dir="$(mktemp -d)"
+trap 'rm -rf "${proof_dir}"' EXIT
 
 source_tree_id="$(git rev-parse "HEAD:${SERVICE_SOURCE_PATH}")"
 rendered_image="$(kubectl kustomize "${SERVICE_OVERLAY}" | awk '/image: / { print $NF; exit }')"
@@ -61,16 +65,18 @@ docker build --tag "${local_image}" "${SERVICE_SOURCE_PATH}"
 echo "pushing ${host_image} to Floci ACR"
 docker tag "${local_image}" "${host_image}"
 docker push "${host_image}"
-artifact_digest="$(docker image inspect --format '{{index .RepoDigests 0}}' "${host_image}" 2>/dev/null || true)"
+artifact_reference="$(docker image inspect --format '{{index .RepoDigests 0}}' "${host_image}")"
+artifact_digest="${artifact_reference##*@}"
+if [[ ! "${artifact_digest}" =~ ^sha256:[a-f0-9]{64}$ ]]; then
+  echo "No valid registry digest found for ${host_image}." >&2
+  exit 1
+fi
 
 k3s_container="$(kubectl --kubeconfig "${FLOCI_AKS_KUBECONFIG}" get nodes -o jsonpath='{.items[0].metadata.name}')"
 if ! docker inspect "${k3s_container}" --format '{{.State.Running}}' 2>/dev/null | grep -qx 'true'; then
   echo "Kubernetes node container '${k3s_container}' is unavailable." >&2
   exit 1
 fi
-
-echo "removing any cached ${expected_image} before reconciliation"
-docker exec "${k3s_container}" ctr --address /run/k3s/containerd/containerd.sock --namespace k8s.io images rm "${expected_image}" >/dev/null 2>&1 || true
 
 echo "applying Git-tracked Argo CD Application"
 kubectl --kubeconfig "${FLOCI_AKS_KUBECONFIG}" apply -f "${ARGOCD_APPLICATION_MANIFEST}"
@@ -82,11 +88,15 @@ if [[ -n "${ARGOCD_APPLICATION_REVISION}" ]]; then
     -p "{\"spec\":{\"source\":{\"targetRevision\":\"${ARGOCD_APPLICATION_REVISION}\"}}}"
 fi
 
-echo "waiting for Argo CD to reconcile the Git-tracked overlay"
+kubectl --kubeconfig "${FLOCI_AKS_KUBECONFIG}" -n argocd annotate application "${SERVICE_NAME}" \
+  argocd.argoproj.io/refresh=hard --overwrite >/dev/null
+
+echo "waiting for Argo CD to reconcile Git revision ${desired_revision}"
 deadline=$((SECONDS + SERVICE_TIMEOUT_SECONDS))
 while true; do
   sync_status="$(kubectl --kubeconfig "${FLOCI_AKS_KUBECONFIG}" -n argocd get application "${SERVICE_NAME}" -o jsonpath='{.status.sync.status}' 2>/dev/null || true)"
-  if [[ "${sync_status}" == "Synced" ]]; then
+  synced_revision="$(kubectl --kubeconfig "${FLOCI_AKS_KUBECONFIG}" -n argocd get application "${SERVICE_NAME}" -o jsonpath='{.status.sync.revision}' 2>/dev/null || true)"
+  if [[ "${sync_status}" == "Synced" && "${synced_revision}" == "${desired_revision}" ]]; then
     break
   fi
   if (( SECONDS >= deadline )); then
@@ -97,8 +107,44 @@ while true; do
   sleep 3
 done
 
+live_image="$(kubectl --kubeconfig "${FLOCI_AKS_KUBECONFIG}" -n "${SERVICE_NAMESPACE}" get deployment "${SERVICE_NAME}" -o "jsonpath={.spec.template.spec.containers[?(@.name=='${SERVICE_NAME}')].image}")"
+live_pull_policy="$(kubectl --kubeconfig "${FLOCI_AKS_KUBECONFIG}" -n "${SERVICE_NAMESPACE}" get deployment "${SERVICE_NAME}" -o "jsonpath={.spec.template.spec.containers[?(@.name=='${SERVICE_NAME}')].imagePullPolicy}")"
+if [[ "${live_image}" != "${expected_image}" || "${live_pull_policy}" != "Always" ]]; then
+  echo "Reconciled deployment must use ${expected_image} with imagePullPolicy Always." >&2
+  exit 1
+fi
+
+kubectl --kubeconfig "${FLOCI_AKS_KUBECONFIG}" -n "${SERVICE_NAMESPACE}" get pods -l "app=${SERVICE_NAME}" -o json > "${proof_dir}/previous-pods.json"
+echo "removing cached image reference before recreating the local proof pods"
+docker exec "${k3s_container}" ctr --address /run/k3s/containerd/containerd.sock --namespace k8s.io images rm "${expected_image}"
+if docker exec "${k3s_container}" ctr --address /run/k3s/containerd/containerd.sock --namespace k8s.io images list -q | grep -Fxq "${expected_image}"; then
+  echo "Cached image reference still exists; cannot prove registry pull." >&2
+  exit 1
+fi
+
+# Recreate only this local reference workload, without changing Git desired state.
+# An unchanged Deployment does not restart pods just because the image was evicted.
+kubectl --kubeconfig "${FLOCI_AKS_KUBECONFIG}" -n "${SERVICE_NAMESPACE}" delete pod -l "app=${SERVICE_NAME}" \
+  --wait=true --timeout="${SERVICE_TIMEOUT}"
+
 echo "verifying Kubernetes rollout"
 kubectl --kubeconfig "${FLOCI_AKS_KUBECONFIG}" -n "${SERVICE_NAMESPACE}" rollout status "deployment/${SERVICE_NAME}" --timeout "${SERVICE_TIMEOUT}"
+
+echo "verifying new Ready pods run the pushed registry digest"
+deadline=$((SECONDS + SERVICE_TIMEOUT_SECONDS))
+while true; do
+  kubectl --kubeconfig "${FLOCI_AKS_KUBECONFIG}" -n "${SERVICE_NAMESPACE}" get pods -l "app=${SERVICE_NAME}" -o json > "${proof_dir}/pods.json"
+  if python3 scripts/infra/local/verify-service-pods.py "${SERVICE_NAME}" "${expected_image}" "${artifact_digest}" "${proof_dir}/previous-pods.json" \
+    < "${proof_dir}/pods.json" > "${proof_dir}/pod-evidence" 2> "${proof_dir}/verification-error"; then
+    cat "${proof_dir}/pod-evidence"
+    break
+  fi
+  if (( SECONDS >= deadline )); then
+    cat "${proof_dir}/verification-error" >&2
+    exit 1
+  fi
+  sleep 3
+done
 
 echo "verifying blocking health endpoint"
 kubectl --kubeconfig "${FLOCI_AKS_KUBECONFIG}" -n "${SERVICE_NAMESPACE}" delete pod "${SERVICE_NAME}-health" \
@@ -110,7 +156,8 @@ kubectl --kubeconfig "${FLOCI_AKS_KUBECONFIG}" -n "${SERVICE_NAMESPACE}" run "${
 echo
 echo "${SERVICE_NAME} delivery proof complete."
 echo "artifact: ${expected_image}"
-echo "registry digest: ${artifact_digest:-unavailable}"
+echo "registry digest: ${artifact_digest}"
 echo "source tree: ${source_tree_id}"
-echo "Argo Application: ${SERVICE_NAME} (Synced)"
+echo "desired Git revision: ${desired_revision}"
+echo "Argo Application: ${SERVICE_NAME} (Synced at ${synced_revision})"
 echo "target: ${SERVICE_NAMESPACE}/deployment/${SERVICE_NAME}"

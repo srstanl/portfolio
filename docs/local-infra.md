@@ -1,9 +1,9 @@
 # Local Infra Bootstrap
 
 ## Purpose
-> **Status:** this `k3d` bootstrap is a legacy local-development path. The paved-road delivery target is a Floci-provisioned local AKS/Kubernetes runtime; do not extend this path for the current computer-to-Kubernetes proof. It remains documented only until the Floci bootstrap replaces it.
+> **Status:** this `k3d` bootstrap is a legacy local-development path. The paved-road delivery target is a Floci-provisioned local AKS/Kubernetes runtime; do not extend this path for the current computer-to-Kubernetes proof. The Floci bootstrap is already merged; k3d remains available for legacy workflows.
 
-Stand up a legacy local Kubernetes baseline for platform/CD work using `k3d`.
+The current proof path uses Floci AKS and Argo CD. Legacy k3d and observability commands are retained below. Registry-backed image delivery is proposed in [PR #40](https://github.com/srstanl/portfolio/pull/40); the merged proof still uses direct image import.
 
 ## Floci AKS Bootstrap (Paved-Road Path)
 
@@ -107,7 +107,9 @@ From repo root:
 make infra-local-down
 ```
 
-## Observability Bootstrap
+## Legacy Observability Bootstrap (Deferred)
+
+These retained scripts are optional legacy tooling. Observability backend selection and implementation remain deferred; they are not prerequisites for the current Floci/Argo CD proof.
 Installs:
 - `kube-prometheus-stack` (Prometheus + Grafana)
 - `opentelemetry-collector` (deployment mode)
@@ -185,7 +187,7 @@ make python-service-proof-up
 
 The proof builds `examples/python-service` on the workstation, tags it with the committed Git tree ID for that service, pushes the artifact to Floci ACR, and removes any matching cached node image before reconciliation. The Git-tracked Floci overlay pins the k3s-reachable registry reference and uses `imagePullPolicy: Always`; the Git-tracked Argo CD `Application` then reconciles that overlay into `apps-dev`.
 
-The command blocks until Argo CD reports `Synced`, the Kubernetes deployment finishes rolling out, and an in-cluster request to `http://python-service:8080/health` succeeds. Its final output records the k3s image reference, registry digest, source tree ID, Argo result, and deployment target. The rollout and health gates are authoritative for this proof because the local Traefik Ingress does not publish a load-balancer status for Argo CD to mark healthy.
+The command blocks until Argo CD reports `Synced` at the checked-out Git revision. It evicts the cached image reference, recreates this reference workload’s pods, and requires new pod UIDs, `imagePullPolicy: Always`, and running image IDs matching the pushed registry digest. Kubernetes rollout and an in-cluster request to `http://python-service:8080/health` must also succeed. This recreation is intentional even when the Deployment manifest is unchanged. Its final output records the k3s image reference, registry digest, source tree ID, Argo result, and deployment target. The rollout and health gates are authoritative for this proof because the local Traefik Ingress does not publish a load-balancer status for Argo CD to mark healthy.
 
 If the Python service source changes, commit it and update the image tag in `platform/cd/python-service/overlays/floci/kustomization.yaml` to the new value from:
 
@@ -206,7 +208,7 @@ make argocd-up
 make dotnet-service-proof-up
 ```
 
-The .NET Floci overlay pins `examples/dotnet-service` to its committed Git tree ID in Floci ACR and the Argo CD `dotnet-service` Application reconciles it to `apps-dev`. The proof blocks on Argo synchronization, the Kubernetes rollout, and an in-cluster `/health` response, then prints the registry artifact and digest, source tree, target, and release evidence.
+The .NET Floci overlay pins `examples/dotnet-service` to its committed Git tree ID in Floci ACR and the Argo CD `dotnet-service` Application reconciles it to `apps-dev`. The proof blocks on Argo synchronization, the Kubernetes rollout, and an in-cluster `/health` response, then prints the registry artifact and digest, source tree, target, and release evidence. It uses the same exact-revision, new-pod, and registry-digest gates as the Python proof.
 
 Before the proof PR is merged, validate the pushed branch explicitly while retaining `main` as the committed Application revision:
 
