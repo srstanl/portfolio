@@ -85,7 +85,7 @@ Platform engineering portfolio focused on Developer Experience (DevEx) and Inter
 - `#39` / PR `#40`: registry-backed local promotion is in review. Review and decide disposition before treating ACR as the merged baseline.
 - `#22`: consumer onboarding epic remains open and deferred; `#21` is the later structural migration task, contingent on a ready consumer.
 - `#11`: provider-drift risk remains open. Its issue body still lacks a mitigation owner, target date, and concrete plan; it must be triaged before execution.
-- The `Portfolio Execution Board` custom fields were not verified: the CLI token lacks `read:project`, and browser access failed during reconciliation. Issue/PR states above were verified directly through GitHub.
+- Project access was restored with the `project` scope. The `Portfolio Execution Board` was reconciled on November 6: all 25 items have consistent `Workflow`/`Status` fields; task `#39` and open PRs `#40`/`#41` are in Review, completed task `#24` is included, and deferred work remains Inbox/Later.
 - Today's next implementation task is awaiting the user's brief. Do not automatically resume deferred onboarding, migration, observability, or real-Azure work.
 
 ## Session Conventions

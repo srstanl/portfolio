@@ -29,7 +29,7 @@ This record reconciles committed files, GitHub issues and PRs, and recorded CI r
 | [#21](https://github.com/srstanl/portfolio/issues/21): physical platform migration | Open; contingent on onboarding | Define migration scope when needed; retain current logical boundary meanwhile |
 | [#11](https://github.com/srstanl/portfolio/issues/11): provider-drift risk | Open; body is a placeholder lacking mitigation owner, target date, and plan | Triage the risk and decide whether the historical manual lanes still justify it |
 
-PR #40 is the only open PR returned for this repository. Its head is `39bb42d` on `feat/floci-acr-promotion`. It reports successful local Python and .NET proof commands in its validation section. Those are author-recorded results, not reruns from this reconciliation.
+PR #40 was the only open PR at the initial audit. This documentation reconciliation is now tracked in draft PR #41. Its head is `39bb42d` on `feat/floci-acr-promotion`. It reports successful local Python and .NET proof commands in its validation section. Those are author-recorded results, not reruns from this reconciliation.
 
 ## Current Delivery Boundary
 
@@ -58,7 +58,9 @@ The September 16 main commit changes documentation, so path filtering did not pr
 
 ## Verification and Access Gaps
 
-- `gh project list --owner srstanl --format json` failed because the current token lacks `read:project`. Browser fallback also failed before the project page could be read. No project custom fields were verified or changed. For subsequent board reconciliation, PR #40 / task #39 should be checked for `Workflow=Review`; merged/closed items should be checked against the documented Done rules.
+- Project access initially failed because the CLI token lacked a Projects scope; browser fallback also failed. After the user refreshed authorization with `project`, the [Portfolio Execution Board](https://github.com/users/srstanl/projects/3) was read and reconciled successfully.
+- Board corrections: populated missing `Workflow=Done` for merged PR #25; added completed task #24 as Done; filled missing task Type, Priority, and Area metadata on #27, #29, #32, #35, #37, and #39; added open PRs #40 and #41 as Review / In Progress with Target=Now.
+- All 25 board items were then checked for the documented Workflow-to-Status mapping. Task #39 was already in Review; #11, #21, and #22 remain Inbox / Todo / Later. Historical targets on completed items were retained.
 - The open risk #11 still needs an owner, mitigation date, and plan. No owner or deadline was invented during cleanup.
 - No cluster, container, cloud resource, dependency scan, or application suite was started. Existing runtime health and current advisory status remain unverified.
 - PR #40 remains open; no implementation work was merged or discarded during this documentation cleanup.
@@ -70,6 +72,7 @@ The September 16 main commit changes documentation, so path filtering did not pr
 - `git diff --check`: passed.
 - Local Markdown links in the changed documentation: checked for existing targets.
 - Python and .NET Floci overlay image tags: match the committed service Git tree IDs.
+- Project board: all 25 items verified for Workflow/Status consistency after corrections.
 
 ## Handoff
 
