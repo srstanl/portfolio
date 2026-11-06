@@ -87,18 +87,21 @@ Platform engineering portfolio focused on Developer Experience (DevEx) and Inter
 - `#11`: provider-drift risk remains open. Its issue body still lacks a mitigation owner, target date, and concrete plan; it must be triaged before execution.
 - Project access was restored with the `project` scope. The `Portfolio Execution Board` was reconciled on November 6, initially covering 25 items; cleanup PR `#41` and registry-promotion PR `#40` have since merged. Completed task `#24` is included, and deferred work remains Inbox/Later.
 - PR `#40` passed its platform checks and the exact-head remote Python/.NET proof at `83e5784` (private run `42272459936`) before merge. The reference proof gates on exact Git revision, new pod UIDs, and pushed image digest in the runtime image record.
-- Current task `#42` / PR `#43`: make the office Mac mini the remote execution host for Actions and Floci Azure infrastructure. Remote execution is verified; the dispatch/runbook PR is in review against `main`. See `docs/home-compute.md`.
+- Current task `#42` / PR `#43`: make the office Mac mini the remote execution host for Actions and Floci Azure infrastructure. Remote execution is verified; the dispatch/runbook PR `#43` is merged into `main`. See `docs/home-compute.md`.
 - A private `portfolio-home-control` repository owns native macOS (`portfolio-home`) and Docker-based Linux (`portfolio-home-linux`) runners on the Mini. Runner binaries, workspaces, logs, caches, temporary files, and its kubeconfig are on external storage. SSH-based on-demand startup is the current lifecycle; a login-service attempt was blocked by macOS removable-volume privacy and was removed.
 - Laptop Docker and host power settings remain unchanged. Energy measurement, persistent awake policy, emulator metadata persistence, unattended reboot recovery, and real Azure deployment are deferred.
 
 ## Session Conventions
+- New operating preference (November 6, 2026): `end session` stops session-owned portfolio containers and runners without deleting containers, images, volumes, or deployment data; `start session` resumes the recorded environment and verifies health. `save state` does not shut it down. Laptop Docker stays stopped unless explicitly used by the session; do not start unrelated or previously stopped workloads.
+- Next lifecycle task: `#44` adds SSH-driven suspend/resume, external state tracking, job/concurrency guards, Floci metadata persistence, and a verified stop/start cycle. Existing `*-down` commands delete resources and are unsuitable; `manage-session.py` only manages bounded awake windows. See [the session lifecycle policy](docs/home-compute.md#session-lifecycle-policy).
 - Keyword: `start session`
 - Meaning: begin a new work session by recapping the previous session and checking the board for the next task.
 - `start session` checklist:
   1. Review `PROJECT_CONTEXT.md` for current status, decisions, and immediate next milestones.
   2. Check the active board/epic and confirm the next `Ready` or planned task.
-  3. Summarize repo state (clean vs in-flight changes).
-  4. Propose the next concrete work item before making edits.
+  3. Resume the recorded session environment and verify infrastructure/runners using the lifecycle runbook; report blockers without silently recreating resources.
+  4. Summarize repo state (clean vs in-flight changes).
+  5. Propose the next concrete work item before making edits.
 
 - Keyword: `save state`
 - Meaning: current task reached a stopping point and work should be stored durably in remote history without waiting for follow-up prompts.
@@ -127,4 +130,5 @@ Platform engineering portfolio focused on Developer Experience (DevEx) and Inter
   8. Check the current branch name; if it is `main`, create and switch to a new branch before committing.
   9. Commit the current work with a clear message.
   10. Push the current branch to remote.
-  11. Call out any known CI blockers, unresolved risks, or next recommended starting point.
+  11. Verify no jobs are active, record the resume set, and stop session-owned containers/runners without deleting data; release the bounded awake window last. Follow the lifecycle runbook and report incomplete shutdown explicitly.
+  12. Call out any known CI blockers, unresolved risks, or next recommended starting point.

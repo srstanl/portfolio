@@ -47,6 +47,10 @@ Contribution workflow and delivery rules for this repository.
 - `docs/developer-guide.md`: local setup, run/test/build/debug commands.
 
 ## Session Signals
+- `start session`: resume the portfolio containers suspended at the previous session end, then verify infrastructure health and runner connectivity. Use SSH for startup because stopped runners cannot accept jobs. Keep laptop Docker stopped by default; restore laptop containers only when that session explicitly used them.
+- `end session`: after saving work and verifying no jobs are active, stop the session's running portfolio containers and native runner, preserving container identities, images, volumes, and deployment data. Record what to resume before stopping it. Stop dependent workloads/runners before their infrastructure and release any bounded awake window last. Leave unrelated workloads and previously stopped containers alone.
+- `save state`: persist work without shutting down infrastructure.
+- Session suspend/resume must never call destructive infrastructure `*-down` targets. Until the automation in #44 is verified, use the [lifecycle runbook](docs/home-compute.md#session-lifecycle-policy) and report missing persistence/recovery prerequisites explicitly; do not claim that the awake-session helper performs infrastructure startup/shutdown.
 - `save state`: durable handoff when work should be committed and pushed without waiting for more prompts.
   - Update `PROJECT_CONTEXT.md` with latest status/next step.
   - Update relevant docs/readmes.
