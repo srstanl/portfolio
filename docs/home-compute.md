@@ -31,10 +31,10 @@ make home-validate
 make home-linux-check
 ```
 
-These targets only dispatch GitHub Actions; they never start a laptop Docker daemon. They default to the PR #40 branch while its ACR targets are unmerged. Select a reviewed revision explicitly when needed:
+These targets only dispatch GitHub Actions; they never start a laptop Docker daemon. They default to `main`. Until PR #40 is merged, select its reviewed branch explicitly for `infra-up` or `validate`:
 
 ```bash
-HOME_COMPUTE_PORTFOLIO_REF=<reviewed-branch-or-sha> make home-validate
+HOME_COMPUTE_PORTFOLIO_REF=feat/floci-acr-promotion make home-validate
 gh run list --repo srstanl/portfolio-home-control --workflow home-compute.yml
 ```
 
@@ -63,6 +63,7 @@ The tested startup path is SSH. A login-service attempt failed because macOS den
 From a checkout of the private control repository:
 
 ```bash
+python3 scripts/manage-session.py start --minutes 60
 python3 scripts/manage-runner.py start
 python3 scripts/manage-runner.py status
 python3 scripts/manage-runner.py stop
@@ -71,7 +72,7 @@ python3 scripts/manage-linux-runner.py status
 python3 scripts/manage-linux-runner.py stop
 ```
 
-The runner detaches from SSH and keeps logs/PID on external storage. Stop it before unmounting the APFS image or disconnecting the drive. Provisioning and storage identity configuration are versioned in the private repository. Registration tokens are short-lived, passed through stdin, and omitted from logs.
+The native runner detaches from SSH and keeps logs/PID on external storage. A finite work session holds the Mini awake for the requested window (1–240 minutes) and expires automatically; `manage-session.py status` or `stop` inspects/ends it early. This does not change macOS power settings. Actual maintenance sleep was observed disconnecting the native broker, so start a work window before relying on queued jobs. If a listener process remains alive but offline after sleep, stop/start it to reconnect. Stop it before unmounting the APFS image or disconnecting the drive. Provisioning and storage identity configuration are versioned in the private repository. Registration tokens are short-lived, passed through stdin, and omitted from logs.
 
 After a login/reboot, mount the external runner image before starting the runner:
 
@@ -92,7 +93,7 @@ The observed Floci container used in-memory metadata and the containers had no r
 
 ## Power and electricity policy
 
-The existing power settings are unchanged. The user deferred energy measurement and has not chosen permanent always-awake operation. Each requested native controller operation uses a scoped `caffeinate` assertion while it runs; neither idle runner keeps the Mini awake indefinitely. Jobs require the host to remain awake under the existing power policy.
+The existing power settings are unchanged. The user deferred energy measurement and has not chosen permanent always-awake operation. Each requested native controller operation uses a scoped `caffeinate` assertion while it runs. An explicitly started work window uses `caffeinate -is -t` for a finite duration; it does not change the underlying sleep policy. Neither runner process keeps the Mini awake indefinitely. Jobs require the host to remain awake for their duration.
 
 ## Verified execution evidence
 

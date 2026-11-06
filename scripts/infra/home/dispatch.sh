@@ -17,4 +17,4 @@ gh workflow run home-compute.yml \
   --repo "${HOME_COMPUTE_CONTROL_REPO:-srstanl/portfolio-home-control}" \
   --ref main \
   -f "operation=${operation}" \
-  -f "portfolio_ref=${HOME_COMPUTE_PORTFOLIO_REF:-feat/floci-acr-promotion}"
+  -f "portfolio_ref=${HOME_COMPUTE_PORTFOLIO_REF:-main}"
