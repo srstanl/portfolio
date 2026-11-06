@@ -58,6 +58,9 @@ jobs:
       - name: Repo hygiene checks
         run: ./scripts/ci/check-repo-hygiene.sh
 
+      - name: Delivery proof verification tests
+        run: python3 -m unittest discover -s scripts/infra/local/tests -v
+
       - name: Lint Dockerfiles
         run: |
           for dockerfile in \

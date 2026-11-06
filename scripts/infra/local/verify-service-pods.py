@@ -5,7 +5,14 @@ from pathlib import Path
 import sys
 
 
-def pods_verified(data, service, image, digest, previous):
+def pods_verified(data, service, image, digest, previous, runtime_image=None):
+    accepted = {digest}
+    if runtime_image is not None:
+        status = runtime_image.get('status', {})
+        digests = {r.split('@')[-1] for r in status.get('repoDigests', [])}
+        if digest not in digests or image not in status.get('repoTags', []):
+            return False
+        accepted = digests | {status.get('id', '')}
     pods = data.get('items', [])
     if not pods:
         return False
@@ -20,16 +27,16 @@ def pods_verified(data, service, image, digest, previous):
         container, status = containers[0], statuses[0]
         image_id = status.get('imageID', '').split('@')[-1].removeprefix('containerd://')
         if (container['image'] != image or container.get('imagePullPolicy') != 'Always'
-                or not status.get('ready') or image_id != digest):
+                or not status.get('ready') or image_id not in accepted):
             return False
     return True
 
-
 def main():
-    service, image, digest, previous_path = sys.argv[1:]
+    service, image, digest, previous_path, runtime_path = sys.argv[1:]
     previous = {p['metadata']['uid'] for p in json.loads(Path(previous_path).read_text())['items']}
     current = json.load(sys.stdin)
-    if not pods_verified(current, service, image, digest, previous):
+    runtime_image = json.loads(Path(runtime_path).read_text())
+    if not pods_verified(current, service, image, digest, previous, runtime_image):
         print('Expected new Ready pods with imagePullPolicy Always and the pushed registry digest.', file=sys.stderr)
         return 1
     for pod in current['items']:

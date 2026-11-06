@@ -48,5 +48,17 @@ class VerificationTests(unittest.TestCase):
         self.assertFalse(self.valid(pod))
 
 
+    def test_runtime_alias_requires_pushed_digest_and_same_tag(self):
+        pod = self.pod()
+        pod['status']['containerStatuses'][0]['imageID'] = 'registry/svc@sha256:old'
+        runtime = dict(status=dict(id='sha256:config', repoTags=['registry/svc:tree'],
+                                   repoDigests=['registry/svc@sha256:old', 'registry/svc@sha256:abc']))
+        self.assertTrue(host.pods_verified(dict(items=[pod]), 'svc', 'registry/svc:tree', 'sha256:abc', {'previous'}, runtime))
+        runtime['status']['repoDigests'] = ['registry/svc@sha256:old']
+        self.assertFalse(host.pods_verified(dict(items=[pod]), 'svc', 'registry/svc:tree', 'sha256:abc', {'previous'}, runtime))
+        runtime['status']['repoDigests'].append('registry/svc@sha256:abc')
+        runtime['status']['repoTags'] = ['registry/other:tree']
+        self.assertFalse(host.pods_verified(dict(items=[pod]), 'svc', 'registry/svc:tree', 'sha256:abc', {'previous'}, runtime))
+
 if __name__ == '__main__':
     unittest.main()

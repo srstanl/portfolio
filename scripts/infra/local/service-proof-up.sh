@@ -134,7 +134,8 @@ echo "verifying new Ready pods run the pushed registry digest"
 deadline=$((SECONDS + SERVICE_TIMEOUT_SECONDS))
 while true; do
   kubectl --kubeconfig "${FLOCI_AKS_KUBECONFIG}" -n "${SERVICE_NAMESPACE}" get pods -l "app=${SERVICE_NAME}" -o json > "${proof_dir}/pods.json"
-  if python3 scripts/infra/local/verify-service-pods.py "${SERVICE_NAME}" "${expected_image}" "${artifact_digest}" "${proof_dir}/previous-pods.json" \
+  if docker exec "${k3s_container}" crictl inspecti "${expected_image}" > "${proof_dir}/runtime-image.json" 2> "${proof_dir}/runtime-error" \
+    && python3 scripts/infra/local/verify-service-pods.py "${SERVICE_NAME}" "${expected_image}" "${artifact_digest}" "${proof_dir}/previous-pods.json" "${proof_dir}/runtime-image.json" \
     < "${proof_dir}/pods.json" > "${proof_dir}/pod-evidence" 2> "${proof_dir}/verification-error"; then
     cat "${proof_dir}/pod-evidence"
     break
