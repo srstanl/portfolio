@@ -1,5 +1,7 @@
 # Provider-Agnostic Deployment Contract
 
+> **Status:** historical contract for the retained manual GitHub Actions CD wrappers. The current Floci/Argo CD reference path is defined in [environment-portable delivery requirements](local-vs-cloud-requirements.md) and [local infrastructure](local-infra.md). This document does not establish current GitOps promotion evidence.
+
 ## Purpose
 Define the stable deployment interface that example services and paved-road workflows must satisfy, independent of the underlying runtime provider.
 
@@ -8,7 +10,7 @@ This contract separates:
 - provider-specific mechanics such as Kubernetes manifests, cloud identity, or runner placement
 
 ## Current Driver
-The first implementation target is `examples/python-service`, which already has a working CD lane:
+The first implementation target was `examples/python-service`, whose manual CD lane remains committed:
 - wrapper workflow: `.github/workflows/python-cd.yml`
 - reusable workflow: `.github/workflows/reusable-service-cd.yml`
 
@@ -45,7 +47,7 @@ Every deployment must promote an immutable artifact, not source code directly.
 
 Required rules:
 - artifact is a container image
-- image tag includes the commit SHA
+- image tag includes the commit SHA for these manual workflows (the separate local GitOps proof uses the service Git tree ID)
 - deployment uses the exact built image reference
 - `latest` may be published for convenience, but must not be the source of truth for promotion evidence
 
@@ -161,7 +163,7 @@ The reusable deployment contract should converge on this provider-agnostic input
 | `provider_config_json` | yes | Provider-specific configuration payload |
 
 ## Current Mapping to Existing Python CD Lane
-Current workflow inputs already align partially with the contract:
+The committed wrappers pass the contract inputs:
 - aligned:
   - `service_name`
   - `image_name`
@@ -175,11 +177,7 @@ Current workflow inputs already align partially with the contract:
   - `deployment_mode`
   - `provider`
   - `provider_config_json`
-- Kubernetes-specific and candidates to move behind the adapter:
-  - `namespace`
-  - `deployment_name`
-  - runner selection based on environment
-  - `KUBECONFIG_B64`
+- Kubernetes-specific configuration is passed through `provider_config_json` (`namespace`, `deployment_name`, `runs_on`); `KUBECONFIG_B64` remains a separate workflow secret.
 
 ## Rules for Example Services and Templates
 Each deployable service should provide:
@@ -197,24 +195,15 @@ Each service template should eventually expose placeholders for:
 ## Rules for Promotion Design
 Promotion should move a previously built artifact between stages, not rebuild from source.
 
-This implies the contract for task `#8` should support:
+The retained implementation for closed task `#8` supports:
 - selecting an existing `image_ref`
 - preview deployment without production promotion
 - manual promotion approval through GitHub environments
 - reuse of the same verification model at each stage
 
-## Near-Term Refactor Guidance
-To move from the current Kubernetes-oriented implementation toward this contract:
-
-1. Keep `python-cd` as the first reference workflow.
-2. Rename generic inputs in the reusable workflow toward contract terms.
-3. Collapse Kubernetes-only inputs behind an adapter-specific configuration object or wrapper.
-4. Keep `deployment_mode` explicit for preview vs promote.
-5. Ensure promotion reuses an existing artifact reference instead of rebuilding.
-
-## Acceptance Criteria for Task `#8`
-Task `#8` is complete when:
-- `python-cd` supports `preview` and `promote` invocation modes
-- `promote` reuses an existing `image_ref` instead of rebuilding
-- the same blocking verification model runs after preview and promote deployments
-- GitHub environment gating remains the approval boundary for higher environments
+## Implementation Status
+- The generic input surface, Kubernetes provider configuration object, and Python/Node/.NET wrappers are committed (PR `#18`).
+- Task `#7` (contract), task `#8` (Python preview/promote), and task `#9` (reusable workflow) are closed.
+- The retained wrappers support explicit `preview` and `promote`; promotion requires an existing image reference.
+- Supplying an image reference also causes preview to reuse it. Validation occurs in the deploy job, after artifact selection/build.
+- The current GitOps proof is a separate path. Registry-backed local delivery remains open in `#39` / PR `#40`; do not infer cross-stage GitOps promotion or real-Azure proof from these manual workflows.

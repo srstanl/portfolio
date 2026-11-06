@@ -19,16 +19,16 @@ Platform-first portfolio repository focused on Internal Developer Platform (IDP)
 - `platform/` Infrastructure and shared platform components
 - `idp/` Developer portal and catalog integration
 - `templates/` Service templates (scaffolding and standards)
-- `paved-roads/` Reusable CI/CD, policies, observability defaults
+- `paved-roads/` Delivery, policy, and OTEL telemetry standards
 - `examples/` Platform-native reference adopters that prove the platform contract
 - `docs/` Architecture and operating model
 
 ## Getting Started
-```bash
-make bootstrap
-make lint
-make test
-```
+Read [PROJECT_CONTEXT.md](PROJECT_CONTEXT.md) for the current handoff and [the November 6 reconciliation](docs/reconciliation-2026-11-06.md) for verified tracking and remaining gaps.
+
+`make bootstrap`, `make lint`, and `make test` are placeholders apart from structure validation. Run the service-specific commands in [the developer guide](docs/developer-guide.md) for actual application checks.
+
+The merged reference delivery path is Floci AKS → Argo CD → Python/.NET rollout and health verification. Follow [the local infrastructure runbook](docs/local-infra.md). Registry-backed promotion is proposed in [PR #40](https://github.com/srstanl/portfolio/pull/40) and is not merged.
 
 ## Service Scaffolding
 - Generate new services from templates: `make scaffold-service TEMPLATE=service-python NAME=my-service`
@@ -44,18 +44,21 @@ make test
 
 ## CI/CD Model
 - Path-filtered workflows per domain
-- Shared checks in `paved-roads/ci-cd`
+- Shared CI checks in `.github/workflows/platform-ci.yml`; delivery standards in `paved-roads/README.md`
+- Current reference releases reconcile Git desired state through Argo CD; manual CD wrappers are historical delivery lanes
 - Example services validated independently
 - CI workflow map: [docs/ci-workflow-map.md](docs/ci-workflow-map.md)
 - Local vs cloud requirements baseline: [docs/local-vs-cloud-requirements.md](docs/local-vs-cloud-requirements.md)
 - Problem recommender adoption plan: [docs/problem-recommender-platform-adoption.md](docs/problem-recommender-platform-adoption.md)
 
 ## Delivery Tracking
+- Current reconciliation: [docs/reconciliation-2026-11-06.md](docs/reconciliation-2026-11-06.md)
+- Current Floci/Argo CD proof: [docs/local-infra.md](docs/local-infra.md)
 - GitHub Project v1 setup runbook: [docs/github-project-v1.md](docs/github-project-v1.md)
-- Provider-agnostic deployment contract: [docs/deployment-contract.md](docs/deployment-contract.md)
-- Python CD runbook: [docs/python-cd.md](docs/python-cd.md)
-- Node CD runbook: [docs/node-cd.md](docs/node-cd.md)
-- .NET CD runbook: [docs/dotnet-cd.md](docs/dotnet-cd.md)
+- Historical manual-workflow deployment contract: [docs/deployment-contract.md](docs/deployment-contract.md)
+- Historical Python CD runbook: [docs/python-cd.md](docs/python-cd.md)
+- Historical Node CD runbook: [docs/node-cd.md](docs/node-cd.md)
+- Historical .NET CD runbook: [docs/dotnet-cd.md](docs/dotnet-cd.md)
 
 ## License
 AGPL-3.0. See `LICENSE`.

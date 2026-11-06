@@ -33,13 +33,13 @@ Observability backend selection and implementation are deliberately deferred. OT
 |---|---|---|---|
 | Cluster runtime | Floci-provisioned AKS/Kubernetes runtime; stable namespaces (`apps-dev`, `apps-staging`, `apps-prod`) | Managed AKS behavior, capacity, and control-plane integration |
 | Ingress | Stable route structure | DNS, TLS, and managed-ingress integration |
-| Artifact and desired state | GitOps from committed repository state; immutable commit-SHA image references | Registry choice and managed registry access |
+| Artifact and desired state | GitOps from committed repository state; immutable source-derived image references (the local reference proofs use service Git tree IDs) | Registry choice and managed registry access |
 | Release reconciliation | Argo CD reconciles declared state; no imperative release drift | Managed-cluster credentials and controller integration |
 | Promotion and verification | Stable stages, rollout completion, health, and applicable integration checks | Environment approvals, audit controls, and stronger higher-environment gates |
 | Security and policy | Lint, test, dependency scan, container scan, workflow guards, and environment protection | Workload identity, RBAC, branch protection, and organization governance |
 | Data and Azure dependencies | Floci is the default emulator boundary; add components only for uncovered contracts | Managed-service configuration and service-level requirements |
 | Observability | Emit OTEL-compatible telemetry; backend selection is deferred | Backend, retention, alerting, and managed integration when required |
-| Traceability | Commit SHA image tags and workflow evidence | Release metadata and audit-trail integration |
+| Traceability | Source Git revision/tree, image reference, Argo sync, rollout, and health evidence | Release metadata and audit-trail integration |
 
 ## Evidence Boundary
 
@@ -56,9 +56,12 @@ Floci proves the portable delivery contract. A later Azure proof is required onl
 - All application telemetry is OTEL-compatible; no observability backend is selected by this requirement set.
 - Security gate intent is explicit (`blocking` vs `advisory`).
 
-## Next Derivative Work
-1. Implement the `python-service` GitOps-to-Argo-CD proof on Floci-provisioned local AKS.
-2. Define the Argo CD application and promotion conventions for the example services.
-3. Define cloud-target deltas (AKS identity, Key Vault/secrets, ingress TLS, policy/RBAC).
-4. Add a `floci` local-AKS bootstrap and usage runbook for the reference delivery flow.
-5. Select an OTEL-compatible observability backend only when an observability delivery requirement exists.
+## Delivery Status and Remaining Work
+- Floci AKS lifecycle and its usage runbook are merged (`#27`, PR `#28`).
+- Argo CD controller bootstrap is merged (`#29`, PR `#30`).
+- Python (`#32`, PR `#34`) and .NET (`#35`, PR `#36`) reference reconciliation proofs are complete. The merged local path imports service-tree-tagged images into k3s and pins them in Git with `imagePullPolicy: Never`.
+- Registry-backed promotion is proposed in open task `#39` / PR `#40`. Its Floci ACR lifecycle and fresh-pull behavior are not yet part of `main`.
+- Cross-stage GitOps promotion conventions and real-Azure evidence (identity, secrets, networking, TLS, policy/RBAC) remain future work.
+- Select an OTEL-compatible observability backend only when an observability delivery requirement exists.
+
+See [the reconciliation record](reconciliation-2026-11-06.md) for tracking and verification limits.

@@ -21,15 +21,18 @@ This is not meant to turn the recommender into a production system immediately. 
 
 That means it can expose gaps in the paved road that simple reference services may not reveal.
 
-## Why It Is Not Ready Yet
-In its current form, `problem_recommender` is primarily a local Python tool with:
-- CLI-first interaction
-- filesystem-coupled state
-- no stable HTTP service interface
-- no platform-aligned container/runtime contract
-- no repo-local CI/CD behavior matching the portfolio examples
+## Current Candidate Status (November 6, 2026)
 
-Using it as the platform dummy requires turning it into a deployable service boundary.
+The local sibling workspace at `playground/problem_recommender` already contains:
+
+- a FastAPI application with health and recommendation routes
+- shared `RecommendationService` and `CorpusService` orchestration
+- CLI/API surfaces and integration tests
+- a service-split plan for further extraction
+
+The initial API extraction is partially implemented. Container packaging, platform runtime alignment, and delivery adoption remain unproven. This inspection was of the local sibling checkout; its remote history and runtime were not revalidated.
+
+Onboarding remains deferred under epic `#22`; this plan is a future adoption guide, not today's assigned implementation task.
 
 ## Target End State
 The target shape is a Python service that preserves the current recommendation and generation logic, but exposes it through a platform-aligned application boundary.
@@ -44,7 +47,7 @@ The target shape is a Python service that preserves the current recommendation a
 - one CD lane
 
 ### Recommended Structure
-Suggested internal shape:
+The following is an earlier conceptual sketch. Preserve the existing `api/`, `cli/`, `services/`, and `shared/` split when resuming; use the sibling project’s `SERVICE_SPLIT_PLAN.md` for the current extraction map.
 
 ```text
 problem_recommender/
@@ -126,17 +129,13 @@ Recommended first alignment:
 - `trivy image`
 
 ## CD Expectations
-The service should adopt the same delivery semantics as the existing Python example:
-- preview deployment
-- promote deployment using the same artifact
-- GitHub environment gates
-- rollout verification
-- health verification
+The service should adopt the current Floci/Argo CD reference delivery semantics:
+- Git-tracked desired state reconciled by Argo CD
+- immutable artifact identity and an explicit registry/promotion contract
+- blocking rollout and health verification
+- stage mapping for `dev`, `staging`, `prod` when promotion is implemented
 
-That implies:
-- a dedicated wrapper workflow such as `problem-recommender-cd`
-- Kubernetes manifests under `platform/cd/problem-recommender/`
-- stage mapping for `dev`, `staging`, `prod`
+Consumer workload and deployment state should be owned with the consumer, as described in [the platform asset charter](platform-asset-charter.md). The platform reference paths are for controlled example services. Registry-backed local delivery is currently proposed in PR `#40`; cross-stage consumer promotion is not yet proven.
 
 ## Observability Baseline
 To be a useful platform test dummy, the service should include:
@@ -193,13 +192,13 @@ Exit criteria:
 Goal: make it a real paved-road deployment consumer.
 
 Work:
-- add Kubernetes manifests
-- add wrapper workflow using the reusable CD contract
-- enable preview/promote behavior
+- add consumer-owned Kubernetes manifests and Argo CD desired state
+- adopt the current GitOps artifact contract
+- define promotion behavior against the agreed platform conventions
 - verify rollout and health
 
 Exit criteria:
-- deployable through the same contract as other services
+- deployable through the same GitOps contract as the reference adopters
 - promotion reuses built artifacts
 
 ### Phase 5: Paved-Road Feedback
