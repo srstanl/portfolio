@@ -1,5 +1,7 @@
 # .NET CD Lane
 
+> **Status:** retained manual GitHub Actions deployment lane. The current reference delivery proof uses Floci AKS and Argo CD; see [local infrastructure](local-infra.md). This workflow is separate from the GitOps proof.
+
 ## Purpose
 Deployment lane for `examples/dotnet-service`:
 - build and push image to GHCR
@@ -23,7 +25,7 @@ Reusable CD skeleton: `.github/workflows/reusable-service-cd.yml`
   - `prod` -> deploys to namespace `apps-prod`
 - Input `artifact_image_ref`:
   - required for `promote`
-  - ignored for `preview`
+  - leave empty to build a preview; the current workflow reuses any supplied reference, including in preview mode
 
 ## Exact Values Reference
 - Workflow event: `workflow_dispatch`

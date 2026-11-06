@@ -1,9 +1,9 @@
 # Local Infra Bootstrap
 
 ## Purpose
-> **Status:** this `k3d` bootstrap is a legacy local-development path. The paved-road delivery target is a Floci-provisioned local AKS/Kubernetes runtime; do not extend this path for the current computer-to-Kubernetes proof. It remains documented only until the Floci bootstrap replaces it.
+> **Status:** this `k3d` bootstrap is a legacy local-development path. The paved-road delivery target is a Floci-provisioned local AKS/Kubernetes runtime; do not extend this path for the current computer-to-Kubernetes proof. The Floci bootstrap is already merged; k3d remains available for legacy workflows.
 
-Stand up a legacy local Kubernetes baseline for platform/CD work using `k3d`.
+The current proof path uses Floci AKS and Argo CD. Legacy k3d and observability commands are retained below. Registry-backed image delivery is proposed in [PR #40](https://github.com/srstanl/portfolio/pull/40); the merged proof still uses direct image import.
 
 ## Floci AKS Bootstrap (Paved-Road Path)
 
@@ -83,7 +83,9 @@ From repo root:
 make infra-local-down
 ```
 
-## Observability Bootstrap
+## Legacy Observability Bootstrap (Deferred)
+
+These retained scripts are optional legacy tooling. Observability backend selection and implementation remain deferred; they are not prerequisites for the current Floci/Argo CD proof.
 Installs:
 - `kube-prometheus-stack` (Prometheus + Grafana)
 - `opentelemetry-collector` (deployment mode)

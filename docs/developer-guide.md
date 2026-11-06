@@ -3,7 +3,9 @@
 ## Purpose
 Local development commands for the example services and CI-aligned checks.
 Contribution process, issue/PR workflow, and project-board rules are documented in `CONTRIBUTING.md`.
-Local Kubernetes bootstrap for infra/CD work is documented in `docs/local-infra.md`.
+The current Floci AKS/Argo CD proof and retained legacy bootstrap commands are documented in `docs/local-infra.md`.
+
+Root `make bootstrap`, `make lint`, and `make test` targets do not run the application suites; use the domain commands below.
 
 ## Prerequisites
 - .NET SDK 10
@@ -118,6 +120,7 @@ cd examples/web-angular
 npm ci
 npm test
 npm run build
+npx playwright install --with-deps chromium
 npm run test:e2e
 npm audit --omit=dev --audit-level=high
 ```

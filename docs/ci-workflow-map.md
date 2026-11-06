@@ -4,7 +4,9 @@
 Quick reference for which GitHub Actions workflows run and how to trigger them.
 
 ## Manual Test Option
-All workflows support manual execution via `workflow_dispatch`.
+All top-level CI workflows and service CD wrappers support manual execution via `workflow_dispatch`. `reusable-service-cd` is invoked through `workflow_call`, not directly from the Actions UI.
+
+The manual CD wrappers below are retained historical lanes. The current local reference proof uses Git desired state and Argo CD; see [local infrastructure](local-infra.md).
 
 GitHub UI path:
 1. Open `Actions` tab.
@@ -67,6 +69,7 @@ GitHub UI path:
     - `examples/web-angular/**`
   - Checks:
     - dependency install, headless unit tests, build
+    - Playwright Chromium install and E2E smoke test
     - dependency vulnerability scan
     - Dockerfile lint
     - container build + Trivy scan
@@ -76,7 +79,7 @@ GitHub UI path:
     - `idp/**`
   - Checks:
     - Backstage dependency install, lint, type-check, tests
-    - dependency vulnerability scan
+    - advisory dependency vulnerability scan (`continue-on-error: true`)
     - Dockerfile lint
     - container build + Trivy scan
 

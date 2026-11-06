@@ -1,5 +1,7 @@
 # Python CD Lane
 
+> **Status:** retained manual GitHub Actions deployment lane. The current reference delivery proof uses Floci AKS and Argo CD; see [local infrastructure](local-infra.md). This workflow is separate from the GitOps proof.
+
 ## Purpose
 First deployment lane for `examples/python-service`:
 - build and push image to GHCR
@@ -23,7 +25,7 @@ Reusable CD skeleton: `.github/workflows/reusable-service-cd.yml`
   - `prod` -> deploys to namespace `apps-prod`
 - Input `artifact_image_ref`:
   - required for `promote`
-  - ignored for `preview`
+  - leave empty to build a preview; the current workflow reuses any supplied reference, including in preview mode
 
 ## Exact Values Reference
 - Workflow event: `workflow_dispatch`
@@ -85,4 +87,4 @@ Promotion reuses the existing artifact and does not rebuild from source.
 - provider selector + provider configuration payload
 - health and integration endpoints
 
-Use this pattern to add `node-cd` and `dotnet-cd` without duplicating core CD logic.
+The existing `node-cd` and `dotnet-cd` wrappers use the same reusable workflow.
