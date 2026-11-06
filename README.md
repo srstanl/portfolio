@@ -38,6 +38,7 @@ The merged reference delivery path is Floci AKS → Argo CD → Python/.NET roll
 - Dispatch remote host inspection: `make home-inspect`
 - Dispatch remote infrastructure bootstrap: `make home-infra-up`
 - Dispatch remote Python/.NET validation: `make home-validate`
+- Dispatch remote Linux container-action check: `make home-linux-check`
 
 ## Developer Setup
 - Local runbooks and CI-aligned commands: [docs/developer-guide.md](docs/developer-guide.md)

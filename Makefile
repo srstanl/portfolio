@@ -70,3 +70,7 @@ home-infra-up:
 
 home-validate:
 	@./scripts/infra/home/dispatch.sh validate
+
+.PHONY: home-linux-check
+home-linux-check:
+	@./scripts/infra/home/dispatch.sh linux-check

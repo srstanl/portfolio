@@ -8,7 +8,7 @@ The host is an Intel Mac mini with 32 GiB RAM. Docker Desktop currently allocate
 
 ## Private Actions execution
 
-The runner is registered only to [portfolio-home-control](https://github.com/srstanl/portfolio-home-control), a private repository. It is named `office-mac-mini` and has labels `self-hosted`, `macOS`, `X64`, and `portfolio-home`.
+Both runners are registered only to [portfolio-home-control](https://github.com/srstanl/portfolio-home-control), a private repository. The native runner is named `office-mac-mini` with labels `self-hosted`, `macOS`, `X64`, and `portfolio-home`. A Docker-based Linux runner on the same Mini is named `office-mac-mini-linux` with labels `self-hosted`, `Linux`, `X64`, and `portfolio-home-linux`.
 
 That repository's manually dispatched `Home compute` workflow checks out a trusted portfolio revision and performs one operation:
 
@@ -20,7 +20,7 @@ That repository's manually dispatched `Home compute` workflow checks out a trust
 
 Only the repository owner can run the workflow from its `main`. Operations are serialized so two jobs cannot mutate the shared environment simultaneously. The public portfolio's PR workflows remain GitHub-hosted and have no runner registered in this repository. Existing historical CD wrappers still reference the former `k3d-local` runner; this new GitOps control workflow is the supported home-host entry point.
 
-macOS jobs can invoke the local Docker CLI for Linux image builds. GitHub job containers and Docker container actions require a Linux runner; this setup does not silently route existing Linux-only CI workflows to macOS.
+macOS jobs control the host infrastructure. The Linux runner supports Docker container actions through the same Mini Docker daemon; its workspace uses the same external path inside and outside the runner container. The private `Linux runner capability` workflow verifies Docker access, the Floci AKS ARM API, and a real container action writing back to that workspace. Existing public PR workflows retain their current routing; trusted equivalents can use the private Linux runner.
 
 From the laptop:
 
@@ -28,6 +28,7 @@ From the laptop:
 make home-inspect
 make home-infra-up
 make home-validate
+make home-linux-check
 ```
 
 These targets only dispatch GitHub Actions; they never start a laptop Docker daemon. They default to the PR #40 branch while its ACR targets are unmerged. Select a reviewed revision explicitly when needed:
@@ -45,6 +46,7 @@ The external `SSRed2TB` drive uses ExFAT. The runner uses an expandable APFS ima
 |---|---|
 | `/Volumes/SSRed2TB/portfolio-home/runner-storage.sparsebundle` | APFS backing image; grows on demand to a 200 GiB logical maximum |
 | `/Volumes/PortfolioRunners/runner` | Runner binaries, credentials, diagnostics, logs, and `_work` checkouts |
+| `/Volumes/PortfolioRunners/linux-runner` | Linux runner payload, credentials, diagnostics, logs, and `_work` |
 | `/Volumes/PortfolioRunners/cache` | Job package/tool caches |
 | `/Volumes/PortfolioRunners/tmp` | Job temporary files |
 | `/Volumes/PortfolioRunners/state` | Kubeconfig, Azure CLI configuration, PID, and validation evidence |
@@ -64,6 +66,9 @@ From a checkout of the private control repository:
 python3 scripts/manage-runner.py start
 python3 scripts/manage-runner.py status
 python3 scripts/manage-runner.py stop
+python3 scripts/manage-linux-runner.py start
+python3 scripts/manage-linux-runner.py status
+python3 scripts/manage-linux-runner.py stop
 ```
 
 The runner detaches from SSH and keeps logs/PID on external storage. Stop it before unmounting the APFS image or disconnecting the drive. Provisioning and storage identity configuration are versioned in the private repository. Registration tokens are short-lived, passed through stdin, and omitted from logs.
@@ -87,12 +92,14 @@ The observed Floci container used in-memory metadata and the containers had no r
 
 ## Power and electricity policy
 
-The existing power settings are unchanged. The user deferred energy measurement and has not chosen permanent always-awake operation. Each requested controller operation uses a scoped `caffeinate` assertion while it runs; the idle runner does not keep the Mini awake indefinitely.
+The existing power settings are unchanged. The user deferred energy measurement and has not chosen permanent always-awake operation. Each requested native controller operation uses a scoped `caffeinate` assertion while it runs; neither idle runner keeps the Mini awake indefinitely. Jobs require the host to remain awake under the existing power policy.
 
 ## Verified execution evidence
 
 - [Host inspection run](https://github.com/srstanl/portfolio-home-control/actions/runs/42266790526): succeeded on the external-storage `office-mac-mini` runner.
 - [Full remote validation run](https://github.com/srstanl/portfolio-home-control/actions/runs/42267004639): succeeded; both Python and .NET were built, pushed, reconciled, recreated, digest-checked, and health-checked on the Mini. This first full run used the original PR #40 head `39bb42d`; its control-layer verification closes the stale-pod evidence gap for that run.
-- Seven local control-code verification tests passed; the public dispatch wrapper passes shell syntax, structure, and repository hygiene checks.
+- [Corrected exact-head proof](https://github.com/srstanl/portfolio-home-control/actions/runs/42272459936): succeeded against PR #40 head `83e5784`, with both services verified through new pods and the pushed digest in the runtime image record.
+- [Linux capability run](https://github.com/srstanl/portfolio-home-control/actions/runs/42274486618): succeeded on `office-mac-mini-linux`, including Floci ARM API access and Docker container-action workspace mapping.
+- Eight local control-code verification tests passed; the public dispatch wrapper passes shell syntax, structure, and repository hygiene checks.
 
 See [issue #42](https://github.com/srstanl/portfolio/issues/42) for current acceptance criteria and follow-up evidence.
