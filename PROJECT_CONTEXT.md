@@ -86,7 +86,9 @@ Platform engineering portfolio focused on Developer Experience (DevEx) and Inter
 - `#22`: consumer onboarding epic remains open and deferred; `#21` is the later structural migration task, contingent on a ready consumer.
 - `#11`: provider-drift risk remains open. Its issue body still lacks a mitigation owner, target date, and concrete plan; it must be triaged before execution.
 - Project access was restored with the `project` scope. The `Portfolio Execution Board` was reconciled on November 6: all 25 items have consistent `Workflow`/`Status` fields; task `#39` and open PRs `#40`/`#41` are in Review, completed task `#24` is included, and deferred work remains Inbox/Later.
-- Today's next implementation task is awaiting the user's brief. Do not automatically resume deferred onboarding, migration, observability, or real-Azure work.
+- Current task `#42`: make the office Mac mini the remote execution host for Actions and Floci Azure infrastructure. See `docs/home-compute.md`.
+- A private `portfolio-home-control` repository owns the `portfolio-home` runner. Runner binaries, workspaces, logs, caches, temporary files, and its kubeconfig are on external storage. SSH-based on-demand startup is the current lifecycle; a login-service attempt was blocked by macOS removable-volume privacy and was removed.
+- Laptop Docker and host power settings remain unchanged. Energy measurement, persistent awake policy, unattended reboot recovery, and real Azure deployment are deferred.
 
 ## Session Conventions
 - Keyword: `start session`

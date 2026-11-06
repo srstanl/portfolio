@@ -54,3 +54,13 @@ infra-observability-down:
 
 infra-observability-status:
 	@kubectl get pods -n observability
+
+.PHONY: home-inspect home-infra-up home-validate
+home-inspect:
+	@./scripts/infra/home/dispatch.sh inspect
+
+home-infra-up:
+	@./scripts/infra/home/dispatch.sh infra-up
+
+home-validate:
+	@./scripts/infra/home/dispatch.sh validate

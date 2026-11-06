@@ -33,6 +33,12 @@ The merged reference delivery path is Floci AKS → Argo CD → Python/.NET roll
 ## Service Scaffolding
 - Generate new services from templates: `make scaffold-service TEMPLATE=service-python NAME=my-service`
 
+## Remote Home Compute
+- Runner, storage, and operational runbook: [docs/home-compute.md](docs/home-compute.md)
+- Dispatch remote host inspection: `make home-inspect`
+- Dispatch remote infrastructure bootstrap: `make home-infra-up`
+- Dispatch remote Python/.NET validation: `make home-validate`
+
 ## Developer Setup
 - Local runbooks and CI-aligned commands: [docs/developer-guide.md](docs/developer-guide.md)
 - Contribution workflow and project-board conventions: [CONTRIBUTING.md](CONTRIBUTING.md)
