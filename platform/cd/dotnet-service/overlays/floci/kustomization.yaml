@@ -8,7 +8,7 @@ resources:
 
 images:
   - name: ghcr.io/example/dotnet-service
-    newName: dotnet-service
+    newName: host.docker.internal:5000/portfolioacr/dotnet-service
     newTag: b4ba02a95776ade6edeab4af603e7bc20a4a68f3
 
 patches:
@@ -18,4 +18,4 @@ patches:
     patch: |-
       - op: replace
         path: /spec/template/spec/containers/0/imagePullPolicy
-        value: Never
+        value: Always
