@@ -71,7 +71,7 @@ Platform engineering portfolio focused on Developer Experience (DevEx) and Inter
   - `make argocd-down`
 - The Python reference proof (`#32`) is complete: it demonstrated a local artifact build, Git desired state, Argo reconciliation, and blocking health verification on Floci AKS.
 - The .NET reference proof (`#35`) is complete through the same shared local delivery path.
-- Registry-backed local promotion is implemented on `feat/floci-acr-promotion` in open PR `#40`, linked to open task `#39`. Its recorded platform check passed; it is not merged. It replaces direct node image import with Floci ACR push/pull, without claiming real Azure authorization evidence.
+- Registry-backed local promotion merged in PR `#40` on November 6, 2026 (`d1137e1`), completing task `#39`. It replaces direct node image import with Floci ACR push/pull, without claiming real Azure authorization evidence.
 - The platform asset remains a logical boundary; `docs/platform-asset-charter.md` defines the current producer, reference-adopter, consumer, and governance boundaries without a code move.
 - Consumer-project onboarding remains deferred. `problem_recommender` is tracked separately in epic `#22`.
 
@@ -82,11 +82,14 @@ Platform engineering portfolio focused on Developer Experience (DevEx) and Inter
 - Legacy `k3d` and observability bootstrap scripts remain available. They are not the current Floci proof path; observability backend work is deferred.
 
 ## Open Tracking / Next Action
-- `#39` / PR `#40`: registry-backed local promotion is in review. Review and decide disposition before treating ACR as the merged baseline.
+- `#39` / PR `#40`: registry-backed local promotion is merged and is the current ACR baseline.
 - `#22`: consumer onboarding epic remains open and deferred; `#21` is the later structural migration task, contingent on a ready consumer.
 - `#11`: provider-drift risk remains open. Its issue body still lacks a mitigation owner, target date, and concrete plan; it must be triaged before execution.
-- Project access was restored with the `project` scope. The `Portfolio Execution Board` was reconciled on November 6: all 25 items have consistent `Workflow`/`Status` fields; task `#39` and PR `#40` are in Review; cleanup PR `#41` has since merged, completed task `#24` is included, and deferred work remains Inbox/Later.
-- PR `#40` preparation uses the remote Mac mini and private Actions control repository from task `#42`. Main is integrated; the reference proof now gates on exact Git revision, new pod UIDs, and pushed image digest. Remote revalidation and platform checks are required before merge. Keep onboarding, migration, observability, and real-Azure work deferred.
+- Project access was restored with the `project` scope. The `Portfolio Execution Board` was reconciled on November 6, initially covering 25 items; cleanup PR `#41` and registry-promotion PR `#40` have since merged. Completed task `#24` is included, and deferred work remains Inbox/Later.
+- PR `#40` passed its platform checks and the exact-head remote Python/.NET proof at `83e5784` (private run `42272459936`) before merge. The reference proof gates on exact Git revision, new pod UIDs, and pushed image digest in the runtime image record.
+- Current task `#42` / PR `#43`: make the office Mac mini the remote execution host for Actions and Floci Azure infrastructure. Remote execution is verified; the dispatch/runbook PR is in review against `main`. See `docs/home-compute.md`.
+- A private `portfolio-home-control` repository owns native macOS (`portfolio-home`) and Docker-based Linux (`portfolio-home-linux`) runners on the Mini. Runner binaries, workspaces, logs, caches, temporary files, and its kubeconfig are on external storage. SSH-based on-demand startup is the current lifecycle; a login-service attempt was blocked by macOS removable-volume privacy and was removed.
+- Laptop Docker and host power settings remain unchanged. Energy measurement, persistent awake policy, emulator metadata persistence, unattended reboot recovery, and real Azure deployment are deferred.
 
 ## Session Conventions
 - Keyword: `start session`
