@@ -103,3 +103,17 @@ The existing power settings are unchanged. The user deferred energy measurement 
 - Eight local control-code verification tests passed; the public dispatch wrapper passes shell syntax, structure, and repository hygiene checks.
 
 See [issue #42](https://github.com/srstanl/portfolio/issues/42) for current acceptance criteria and follow-up evidence.
+
+## Session lifecycle policy
+
+`end session` means save work, then stop the portfolio containers used by the session and the native runner. `start session` means resume that recorded environment and verify its health before dispatching work. Containers are stopped, not removed; images, volumes, credentials, kubeconfig, registry artifacts, and Kubernetes data are retained. `save state` leaves infrastructure running.
+
+Automation is tracked in [task #44](https://github.com/srstanl/portfolio/issues/44). It is not implemented by `manage-session.py`, which only controls a bounded awake window. Existing `floci-aks-down`, `floci-acr-down`, and `argocd-down` commands delete resources or deployments and must not be used for session suspension.
+
+The next implementation must run over SSH, check that no jobs are active, serialize lifecycle changes against infrastructure jobs, and save the exact container IDs/resume set on external storage before stopping anything. Shutdown stops the native and Linux runners before Kubernetes, registry, and emulator; the awake window ends last. Startup checks external storage, mounts the APFS image if needed, starts remote Docker Desktop if needed, resumes emulator/registry/Kubernetes, verifies health, and starts the runners. An older stopped AKS container is excluded. Repeated shutdown must retain the original resume set.
+
+Floci AZ currently uses in-memory resource metadata. Stopping its container preserves its filesystem and volumes but can lose its AKS/ACR inventory. The [upstream CLI documentation](https://github.com/floci-io/floci-cli#floci-snapshot) says Azure snapshot endpoints are not implemented; CLI help alone does not establish backup support. Establish and verify metadata persistence/recovery before promising a reliable reverse operation. Startup must fail visibly on an inventory mismatch rather than invoke provisioning that may create duplicate containers or replace a cluster.
+
+Until #44 is implemented, session end requires an explicit supervised shutdown with a saved container inventory and this metadata limitation reported; there is no one-command safe suspend/resume yet. A failed or partial shutdown must be recorded as such. Do not run destructive teardown as a substitute.
+
+Only portfolio workloads used by the session are managed. Leave unrelated and previously stopped containers alone. Laptop Docker remains stopped by default; if a future session explicitly runs portfolio containers locally, include those containers in its resume record without automatically enabling laptop Docker for other sessions. No permanent sleep settings change, and expiry of an awake window does not itself shut down containers. Cold-boot/login recovery and real Azure resource shutdown remain separate work.
